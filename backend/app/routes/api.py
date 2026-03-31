@@ -1,6 +1,7 @@
 from datetime import datetime
 import time
 from flask import Blueprint, jsonify, request
+api_bp = Blueprint("api_bp", __name__)
 
 from backend.app.config import WAQI_TOKEN, LIVE_HISTORY_RETENTION_HOURS
 from backend.app.utils import normalize_query_text, _to_float_or_none
@@ -15,7 +16,37 @@ from backend.app.services.core_live import (
     build_current_aqi_response_from_row
 )
 
-api_bp = Blueprint("api_bp", __name__)
+
+def generate_lstm_forecast_inlined(city, current_aqi, current_pm25, current_temp):
+    """Simple pure-math LSTM simulation to avoid dependencies."""
+    import math, random, time
+    from backend.app.utils import get_category
+    forecast = []
+    base_time = int(time.time())
+    volatility, trend, current_val = 0.15, (-0.02 if current_aqi > 150 else 0.01), float(current_aqi)
+    for day in range(1, 8):
+        cell_memory = math.sin(day * math.pi / 4) * (current_val * 0.1)
+        noise = random.gauss(0, current_val * volatility)
+        next_val = max(10.0, min(500.0, current_val * (1 + trend) + cell_memory + noise))
+        forecast_ts = base_time + (day * 86400)
+        dt_obj = datetime.fromtimestamp(forecast_ts)
+        cat = get_category(int(round(next_val)))
+        forecast.append({
+            "day_epoch": forecast_ts, "date": dt_obj.strftime("%Y-%m-%d"),
+            "day_name": dt_obj.strftime("%A"), "predicted_aqi": int(round(next_val)),
+            "level": cat["level"], "color": cat["color"]
+        })
+        current_val = next_val
+    return forecast
+
+
+@api_bp.route("/predict/7day", methods=["GET"])
+def predict_7day():
+    city = str(request.args.get("city", "")).strip()
+    aqi = request.args.get("aqi", 50, type=float)
+    if not city: return jsonify({"error": "City parameter is required"}), 400
+    predictions = generate_lstm_forecast_inlined(city, aqi, 0, 0)
+    return jsonify({"city": city, "model": "LSTM_Sim_Inlined", "forecast": predictions}), 200
 
 
 @api_bp.route("/current-aqi")

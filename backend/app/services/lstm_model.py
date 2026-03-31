@@ -1,14 +1,13 @@
 import time
-import numpy as np
-from datetime import datetime, timedelta
+import math
+import random
+from datetime import datetime
 from backend.app.utils import get_category
 
 def generate_lstm_forecast(city, current_aqi, current_pm25, current_temp):
     """
-    Simulates a 7-day localized Long Short-Term Memory (LSTM) forecast.
-    In a full production environment, this would load a PyTorch .pt model.
-    Here we use an autoregressive simulation bridging current data with 
-    historical variance parameters to project 7 days into the future.
+    Simulates a 7-day localized Long Short-Term Memory (LSTM) forecast using pure math,
+    eliminating all numpy/tensor dependencies for guaranteed stability.
     """
     forecast = []
     base_time = int(time.time())
@@ -21,12 +20,12 @@ def generate_lstm_forecast(city, current_aqi, current_pm25, current_temp):
     
     for day in range(1, 8):
         # Apply simulated LSTM cell state transitions (sinusoidal + noise + trend)
-        cell_memory = np.sin(day * np.pi / 4) * (current_val * 0.1)
-        noise = np.random.normal(0, current_val * volatility)
+        cell_memory = math.sin(day * math.pi / 4) * (current_val * 0.1)
+        noise = random.gauss(0, current_val * volatility)
         
         # Calculate next state
         next_val = current_val * (1 + trend) + cell_memory + noise
-        next_val = max(10, min(500, next_val)) # clamp to viable AQI bounds
+        next_val = max(10.0, min(500.0, next_val)) # clamp to viable AQI bounds
         
         # Build payload
         forecast_ts = base_time + (day * 86400)
@@ -46,3 +45,4 @@ def generate_lstm_forecast(city, current_aqi, current_pm25, current_temp):
         current_val = next_val
         
     return forecast
+

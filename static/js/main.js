@@ -2106,6 +2106,7 @@ function updateHeroUI(cityName, country, aqi, cat, desc, reqSeq = null) {
     const circumference = 2 * Math.PI * r; // ≈ 753.98
     const arcLength = circumference * 0.75; // ≈ 565.5
     const progressOffset = arcLength - (arcLength * pct);
+    gaugeEl.style.setProperty('--gauge-offset', `${progressOffset}`);
     gaugeEl.style.strokeDasharray = `${arcLength} ${circumference}`;
     gaugeEl.style.strokeDashoffset = String(progressOffset);
     gaugeEl.style.stroke = cat.color;

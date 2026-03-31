@@ -211,11 +211,19 @@
                   <stop offset="100%" stop-color="#b30033"/>
                 </linearGradient>
                 <filter id="gaugeGlow">
-                  <feGaussianBlur stdDeviation="4" result="blur"/>
-                  <feMerge>
-                    <feMergeNode in="blur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
+                  <feGaussianBlur stdDeviation="6" result="blur"/>
+                  <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+                <filter id="innerShadow">
+                  <feOffset dx="0" dy="2"/>
+                  <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+                  <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+                  <feFlood flood-color="black" flood-opacity="0.5" result="color"/>
+                  <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+                  <feComponentTransfer in="shadow" result="shadow">
+                    <feFuncA type="linear" slope="0.5"/>
+                  </feComponentTransfer>
+                  <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
                 </filter>
               </defs>
               <!-- Background segments -->
