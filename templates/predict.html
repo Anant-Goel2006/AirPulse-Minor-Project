@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-5R8VM5TC');
+        </script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="build-ts" content="{{ build_ts }}"/>
+<title>AI Predict — AQI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ ts }}"/>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<header class="site-header">
+  <div class="header-container">
+    <a href="/" class="header-logo">
+      <div class="logo-badge">AQI</div>
+      <span class="logo-text">Air<strong>Quality</strong></span>
+    </a>
+    <nav class="header-nav">
+      <a href="/" class="nav-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="/analytics" class="nav-link"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+      <a href="/predict" class="nav-link active"><i class="fa-solid fa-brain"></i> AI Predict</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn-menu" id="btnMenu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="page-container">
+
+    <div class="predict-header">
+      <h1 class="predict-title">
+        <span class="predict-badge"><i class="fa-solid fa-brain"></i></span>
+        AI-Powered AQI Prediction
+      </h1>
+      <p class="predict-subtitle">Enter pollutant and weather data to get instant AQI predictions using our Random Forest ML model (R² = 0.9994)</p>
+    </div>
+
+    <!-- Presets -->
+    <div class="preset-row">
+      <span class="preset-label">Quick Presets:</span>
+      <button class="preset-btn" data-preset="good"><span class="preset-dot" style="background:#009966"></span>Good Day</button>
+      <button class="preset-btn" data-preset="moderate"><span class="preset-dot" style="background:#ffde33"></span>Moderate</button>
+      <button class="preset-btn" data-preset="unhealthy"><span class="preset-dot" style="background:#cc0033"></span>Unhealthy</button>
+      <button class="preset-btn" data-preset="hazardous"><span class="preset-dot" style="background:#7e0023"></span>Hazardous</button>
+    </div>
+
+    <div class="predict-layout">
+      <!-- Input Form -->
+      <div class="predict-form-card">
+        <h3 class="form-section-title"><i class="fa-solid fa-smog"></i> Pollutant Levels</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>PM₂.₅ <span class="unit">(μg/m³)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="pm25" class="form-input" value="35" min="0" max="500" step="0.1"/>
+              <input type="range" id="pm25Range" class="form-range" min="0" max="300" step="1" value="35"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>PM₁₀ <span class="unit">(μg/m³)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="pm10" class="form-input" value="70" min="0" max="600" step="0.1"/>
+              <input type="range" id="pm10Range" class="form-range" min="0" max="400" step="1" value="70"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>NO₂ <span class="unit">(ppb)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="no2" class="form-input" value="25" min="0" max="200" step="0.1"/>
+              <input type="range" id="no2Range" class="form-range" min="0" max="200" step="1" value="25"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>SO₂ <span class="unit">(ppb)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="so2" class="form-input" value="8" min="0" max="100" step="0.1"/>
+              <input type="range" id="so2Range" class="form-range" min="0" max="100" step="1" value="8"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>O₃ <span class="unit">(ppb)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="o3" class="form-input" value="45" min="0" max="300" step="0.1"/>
+              <input type="range" id="o3Range" class="form-range" min="0" max="300" step="1" value="45"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>CO <span class="unit">(ppm)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="co" class="form-input" value="1.2" min="0" max="15" step="0.1"/>
+              <input type="range" id="coRange" class="form-range" min="0" max="15" step="0.1" value="1.2"/>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="form-section-title" style="margin-top:20px"><i class="fa-solid fa-cloud-sun"></i> Weather Conditions</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Temperature <span class="unit">(°C)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="temperature" class="form-input" value="25" min="-20" max="50" step="0.1"/>
+              <input type="range" id="temperatureRange" class="form-range" min="-20" max="50" step="1" value="25"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Humidity <span class="unit">(%)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="humidity" class="form-input" value="60" min="0" max="100" step="1"/>
+              <input type="range" id="humidityRange" class="form-range" min="0" max="100" step="1" value="60"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Wind Speed <span class="unit">(m/s)</span></label>
+            <div class="input-slider-group">
+              <input type="number" id="wind_speed" class="form-input" value="5" min="0" max="30" step="0.1"/>
+              <input type="range" id="wind_speedRange" class="form-range" min="0" max="30" step="0.5" value="5"/>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-predict" id="btnPredict">
+          <i class="fa-solid fa-bolt"></i> Predict AQI
+        </button>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="predict-result-card" id="resultCard">
+        <div class="result-placeholder" id="resultPlaceholder">
+          <i class="fa-solid fa-wand-magic-sparkles fa-3x"></i>
+          <p>Enter values and click<br/><strong>Predict AQI</strong> to see results</p>
+        </div>
+
+        <div class="result-content hidden" id="resultContent">
+          <!-- AQI Result -->
+          <div class="result-aqi-display">
+            <div class="result-gauge" id="resultGauge">
+              <svg viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="65" class="gauge-track"/>
+                <circle cx="80" cy="80" r="65" class="gauge-progress" id="resultGaugeArc"/>
+              </svg>
+              <div class="result-gauge-center">
+                <div class="result-aqi-num" id="resultAqiNum">—</div>
+                <div class="result-aqi-tag">AQI</div>
+              </div>
+            </div>
+            <div class="result-meta">
+              <div class="result-level" id="resultLevel">—</div>
+              <div class="result-desc" id="resultDesc">—</div>
+              <div class="result-method" id="resultMethod"></div>
+            </div>
+          </div>
+
+          <!-- Contributions Chart -->
+          <div class="contrib-section">
+            <h4>Pollutant Contributions</h4>
+            <div style="height:180px;position:relative">
+              <canvas id="contribChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Health Tips -->
+          <div class="health-tips" id="healthTips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Performance Card -->
+    <div class="model-perf-card">
+      <h3 class="panel-title"><i class="fa-solid fa-trophy"></i> Model Performance Comparison</h3>
+      <div class="table-responsive">
+        <table class="ranking-table">
+          <thead>
+            <tr><th>Model</th><th>Test RMSE</th><th>Test R²</th><th>CV R²</th><th>Rank</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best-model"><td><i class="fa-solid fa-crown" style="color:#f59e0b"></i> Random Forest</td><td>0.60</td><td>0.9994</td><td>0.9991</td><td><span class="rank-badge gold">🥇 Best</span></td></tr>
+            <tr><td>LightGBM</td><td>1.27</td><td>0.9973</td><td>0.9974</td><td><span class="rank-badge silver">🥈</span></td></tr>
+            <tr><td>XGBoost</td><td>1.34</td><td>0.9970</td><td>0.9969</td><td><span class="rank-badge bronze">🥉</span></td></tr>
+            <tr><td>Gradient Boosting</td><td>2.11</td><td>0.9925</td><td>0.9909</td><td>4</td></tr>
+            <tr><td>Decision Tree</td><td>2.23</td><td>0.9917</td><td>0.9918</td><td>5</td></tr>
+            <tr><td>SVR</td><td>8.51</td><td>0.8780</td><td>0.8640</td><td>6</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="page-container footer-inner">
+    <p class="footer-note">Random Forest: Train R² = 0.9999 · Test R² = 0.9994 · CV R² = 0.9991</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/predict.js') }}?v={{ ts }}"></script>
+</body>
+</html>

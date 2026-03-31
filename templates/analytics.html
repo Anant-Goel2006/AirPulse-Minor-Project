@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-5R8VM5TC');
+        </script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="build-ts" content="{{ build_ts }}"/>
+<title>Analytics — AQI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ ts }}"/>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<header class="site-header">
+  <div class="header-container">
+    <a href="/" class="header-logo">
+      <div class="logo-badge">AQI</div>
+      <span class="logo-text">Air<strong>Quality</strong></span>
+    </a>
+    <nav class="header-nav">
+      <a href="/" class="nav-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="/analytics" class="nav-link active"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+      <a href="/predict" class="nav-link"><i class="fa-solid fa-brain"></i> AI Predict</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn-menu" id="btnMenu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="page-container">
+    <div class="predict-header">
+      <h1 class="predict-title">
+        <span class="predict-badge"><i class="fa-solid fa-chart-line"></i></span>
+        Air Quality Analytics
+      </h1>
+      <p class="predict-subtitle">Deep-dive historical analysis across all monitored cities and pollutants</p>
+    </div>
+
+    <!-- City selector -->
+    <div class="analytics-controls">
+      <div class="ctrl-group">
+        <label>City</label>
+        <select class="chart-select" id="analyticsCitySelect">
+          <option value="">All Cities</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label>Pollutant</label>
+        <select class="chart-select" id="analyticsPollSelect">
+          <option value="aqi">AQI</option>
+          <option value="pm25">PM₂.₅</option>
+          <option value="pm10">PM₁₀</option>
+          <option value="no2">NO₂</option>
+          <option value="so2">SO₂</option>
+          <option value="o3">O₃</option>
+          <option value="co">CO</option>
+        </select>
+      </div>
+      <button class="s-btn" id="btnAnalyticsLoad"><i class="fa-solid fa-rotate-right"></i> Load</button>
+    </div>
+
+    <div class="charts-row" style="margin-bottom:16px">
+      <div class="chart-card wide">
+        <div class="chart-card-header"><h3 class="chart-title">Historical Trend</h3></div>
+        <div class="chart-canvas-wrap" style="height:260px"><canvas id="analyticsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header"><h3 class="chart-title">Distribution</h3></div>
+        <div class="chart-canvas-wrap" style="height:260px"><canvas id="distChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="charts-row" style="margin-bottom:16px">
+      <div class="chart-card">
+        <div class="chart-card-header"><h3 class="chart-title">Pollutant Comparison — All Cities</h3></div>
+        <div class="chart-canvas-wrap" style="height:260px"><canvas id="comparisonChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header"><h3 class="chart-title">Weather vs AQI Correlation</h3></div>
+        <div class="chart-canvas-wrap" style="height:260px"><canvas id="correlationChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Heatmap full -->
+    <div class="chart-card" style="margin-bottom:40px">
+      <div class="chart-card-header"><h3 class="chart-title">AQI Heatmap — Day × Hour</h3></div>
+      <div id="analyticsHeatmap" style="overflow-x:auto;padding:8px 0;"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="page-container footer-inner">
+    <p class="footer-note">Data: WAQI live API snapshots · monitored cities update from live feed</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/analytics.js') }}?v={{ ts }}"></script>
+</body>
+</html>

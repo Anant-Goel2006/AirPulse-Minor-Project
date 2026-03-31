@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<!-- Google Tag Manager -->
+<script>
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-5R8VM5TC');
+        </script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="build-ts" content="{{ build_ts }}"/>
+<title>AQI — Real-time Air Quality Index | Live Air Pollution Monitor</title>
+<meta name="description" content="Monitor real-time AQI and air quality data. Live pollution levels updated every 5 minutes."/>
+<meta name="theme-color" content="#4BA9FF"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet marker cluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ ts }}"/>
+</head>
+<body>
+
+<!-- ── LOADING ──────────────────────────────────────────────── -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-inner">
+    <div class="loading-logo">
+      <span class="logo-mark">AQI</span>
+    </div>
+    <div class="loading-bar-wrap"><div class="loading-bar" id="loadingBar"></div></div>
+    <p class="loading-text">Fetching live air quality data…</p>
+  </div>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+<div class="sky-fx" aria-hidden="true">
+  <span class="sky-sun"></span>
+  <span class="sky-cloud sky-cloud-a"></span>
+  <span class="sky-cloud sky-cloud-b"></span>
+  <span class="sky-cloud sky-cloud-c"></span>
+</div>
+
+<!-- ── HEADER ────────────────────────────────────────────────── -->
+<header class="site-header" id="siteHeader">
+  <div class="header-container">
+    <a href="/" class="header-logo">
+      <div class="logo-badge">AQI</div>
+      <span class="logo-text">Air<strong>Quality</strong></span>
+    </a>
+
+    <nav class="header-nav" id="headerNav">
+      <a href="/" class="nav-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="/analytics" class="nav-link"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+      <a href="/predict" class="nav-link"><i class="fa-solid fa-brain"></i> AI Predict</a>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="globalSearch" class="global-search" placeholder="Search city or area…"/>
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <button class="btn-refresh" id="btnRefresh" title="Refresh data">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+      <button class="btn-locate" id="btnLocate" title="Locate me">
+        <i class="fa-solid fa-location-crosshairs"></i>
+      </button>
+      <button class="btn-menu" id="btnMenu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- ── LOCATION EXPLORER + ALERTS ────────────────────────────── -->
+<section class="location-explorer" id="locationExplorer">
+  <div class="location-explorer-grid">
+    <div class="location-browser">
+      <p class="location-kicker">Live Location Flow</p>
+      <div class="location-browser-head">
+        <div>
+          <h2 class="location-title">Country → State → Nearby AQI</h2>
+          <p class="location-copy">We auto-detect your area on load, then let you drill down from country to state to the live locality feed.</p>
+        </div>
+        <button class="location-current-btn" id="useCurrentLocationBtn" type="button">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <span>Use my location</span>
+        </button>
+      </div>
+      <div class="location-select-row">
+        <label class="location-select-card">
+          <span class="location-select-label">Country</span>
+          <select id="countrySelect" class="location-select">
+            <option value="">Loading countries…</option>
+          </select>
+        </label>
+        <label class="location-select-card">
+          <span class="location-select-label">State / Region</span>
+          <select id="stateSelect" class="location-select" disabled>
+            <option value="">Select a country first</option>
+          </select>
+        </label>
+        <label class="location-select-card">
+          <span class="location-select-label">City / Locality</span>
+          <select id="localitySelect" class="location-select" disabled>
+            <option value="">Select a state first</option>
+          </select>
+        </label>
+      </div>
+      <div class="location-summary-bar">
+        <div class="location-summary-text" id="locationSummary">Detecting your current airshed…</div>
+        <div class="location-summary-pill" id="locationAutoStatus">Auto location ready</div>
+      </div>
+    </div>
+
+    <form class="alert-card" id="alertForm">
+      <p class="alert-kicker">AQI Mail Alerts</p>
+      <h3 class="alert-title">Get the live AQI in your inbox</h3>
+      <p class="alert-copy">Send a current report now and keep alerting when AQI crosses your selected threshold while the server is running.</p>
+      <label class="alert-field">
+        <span>Email address</span>
+        <input id="alertEmailInput" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </label>
+      <label class="alert-field">
+        <span>Alert threshold</span>
+        <select id="alertThresholdSelect">
+          <option value="80">AQI 80+</option>
+          <option value="100" selected>AQI 100+</option>
+          <option value="150">AQI 150+</option>
+          <option value="200">AQI 200+</option>
+        </select>
+      </label>
+      <button class="alert-submit-btn" id="alertSubmitBtn" type="submit">
+        <i class="fa-solid fa-envelope-circle-check"></i>
+        <span>Send report & enable alerts</span>
+      </button>
+      <p class="alert-status" id="alertStatus">Alerts use the current location or selected place.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ── AREA AQI LIST (AQI.IN STYLE) ─────────────────────────── -->
+<section class="area-live-panel" id="areaLivePanel">
+  <div class="area-live-head">
+    <h3 class="area-live-title">Nearby locations AQI</h3>
+    <p class="area-live-meta" id="areaAqiMeta">Loading locality AQI…</p>
+  </div>
+  <div class="area-live-controls" id="areaAqiControls" aria-label="Area AQI slider controls">
+    <button class="area-slide-btn" id="areaSlidePrev" type="button" aria-label="Scroll localities left">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <input class="area-slide-range" id="areaAqiSlider" type="range" min="0" max="100" value="0" step="1" aria-label="Slide localities">
+    <button class="area-slide-btn" id="areaSlideNext" type="button" aria-label="Scroll localities right">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+  <div class="area-live-list" id="areaAqiList"></div>
+</section>
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
+<main class="main-content">
+  <div class="page-container">
+
+    <!-- ── CINEMATIC HERO ─────────────────────────────────────── -->
+    <section class="cinematic-hero" id="cinematicHero" aria-live="polite">
+      <div class="hero-bg-layer is-visible" id="heroBgPrimary" role="img" aria-label="City background image"></div>
+      <div class="hero-bg-layer" id="heroBgSecondary" role="img" aria-hidden="true"></div>
+      <div class="hero-tint-overlay" id="heroTintOverlay"></div>
+      <div class="hero-noise-overlay" aria-hidden="true"></div>
+      <div class="cloud-layer cloud-back" aria-hidden="true"></div>
+      <div class="cloud-layer cloud-mid" aria-hidden="true"></div>
+      <div class="cloud-layer cloud-front" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="hero-kicker">Live Atmosphere</p>
+        <h1 class="hero-city" id="heroCityLabel">Delhi</h1>
+        <p class="hero-country" id="heroCountryLabel">India</p>
+        <div class="hero-meta-row">
+          <span class="hero-aqi-badge" id="heroAqiBadge">AQI --</span>
+          <span class="hero-level-label" id="heroLevelLabel">Loading...</span>
+          <span class="hero-updated" id="heroUpdatedTime">Updated: --</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ROW 1: AQI Hero + Pollutants ─────────────────────── -->
+    <div class="hero-row">
+
+      <!-- AQI Card -->
+      <div class="aqi-hero-card" id="aqiHeroCard">
+        <div class="aqi-city-meta">
+          <div>
+            <div class="aqi-city-name" id="aqiCityName">Delhi</div>
+            <div class="aqi-city-country" id="aqiCityCountry">India</div>
+          </div>
+          <div class="aqi-updated" id="aqiUpdated">—</div>
+        </div>
+
+
+        <!-- Gauge -->
+        <div class="gauge-container">
+          <div class="speedometer-shell">
+            <svg class="speedometer-svg" viewBox="0 0 320 190" aria-hidden="true">
+              <defs>
+                <linearGradient id="speedometerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#1fb6ff"/>
+                  <stop offset="55%" stop-color="var(--aqi-color)"/>
+                  <stop offset="100%" stop-color="#ff8a3d"/>
+                </linearGradient>
+              </defs>
+              <path class="speedometer-track" d="M40 160 A120 120 0 0 1 280 160"></path>
+              <path class="speedometer-progress" id="speedometerProgress" d="M40 160 A120 120 0 0 1 280 160"></path>
+              <g class="speedometer-scale-text">
+                <text x="40" y="178">0</text>
+                <text x="88" y="66">50</text>
+                <text x="160" y="38">100</text>
+                <text x="232" y="66">200</text>
+                <text x="280" y="178">500</text>
+              </g>
+            </svg>
+            <div class="speedometer-needle-wrap" id="speedometerNeedleWrap">
+              <div class="speedometer-needle"></div>
+            </div>
+            <div class="speedometer-hub"></div>
+            <div class="gauge-center-content">
+              <div class="gauge-aqi-value" id="gaugeValue">—</div>
+              <div class="gauge-aqi-label">AQI</div>
+              <div class="gauge-aqi-level" id="gaugeLevel">Loading…</div>
+            </div>
+          </div>
+          <div class="speedometer-caption">Live outdoor exposure meter</div>
+        </div>
+
+        <!-- AQI description -->
+        <div class="aqi-description" id="aqiDescription">
+          <i class="fa-solid fa-circle-info"></i>
+          <span id="aqiDescText">Fetching live data…</span>
+        </div>
+
+        <div class="nlp-advice-card" id="nlpAdviceCard">
+          <div class="nlp-advice-head">
+            <i class="fa-solid fa-notes-medical"></i>
+            <span>AQI Guidance</span>
+          </div>
+          <p class="nlp-summary" id="nlpSummary">Generating precaution insights…</p>
+          <div class="nlp-meta">
+            <span id="nlpMask">Mask: --</span>
+          </div>
+        </div>
+
+        <!-- Guidance Bot CTA -->
+        <button class="guidance-bot-btn" id="guidanceBotBtn" title="Ask Guidance Bot for health steps">
+          <i class="fa-solid fa-head-side-mask"></i>
+          <span>Open Air Coach</span>
+          <span class="bot-pulse"></span>
+        </button>
+
+        <!-- Quick stats -->
+        <div class="aqi-quick-stats">
+          <div class="qs-item">
+            <i class="fa-solid fa-temperature-half"></i>
+            <span class="qs-label">Temp</span>
+            <span class="qs-value" id="qsTemp">—</span>
+          </div>
+          <div class="qs-item">
+            <i class="fa-solid fa-droplet"></i>
+            <span class="qs-label">Humidity</span>
+            <span class="qs-value" id="qsHum">—</span>
+          </div>
+          <div class="qs-item">
+            <i class="fa-solid fa-wind"></i>
+            <span class="qs-label">Wind</span>
+            <span class="qs-value" id="qsWind">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pollutants Panel -->
+      <div class="pollutants-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">Pollutant Concentrations</h3>
+          <div class="dominant-tag" id="dominantTag">
+            <span class="dt-label">Dominant:</span>
+            <span class="dt-value" id="dominantValue">—</span>
+          </div>
+        </div>
+
+        <div class="pollutants-grid" id="pollutantsGrid">
+          <!-- Injected by JS -->
+        </div>
+
+        <!-- Forecast Chart -->
+        <div class="forecast-section">
+          <div class="section-title-row">
+            <h4 class="section-title">7-Day Forecast</h4>
+            <div class="forecast-toggle">
+              <button class="ftoggle active" data-poll="pm25">PM₂.₅</button>
+              <button class="ftoggle" data-poll="o3">O₃</button>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap" style="height:180px">
+            <canvas id="forecastChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Stats Cards ─────────────────────────────── -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+          <i class="fa-solid fa-database"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value" id="statReadings">—</div>
+          <div class="stat-label">Total Readings</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)">
+          <i class="fa-solid fa-chart-simple"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value" id="statAvgAqi">—</div>
+          <div class="stat-label">Average AQI</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value" id="statMaxAqi">—</div>
+          <div class="stat-label">Peak AQI</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+          <i class="fa-solid fa-city"></i>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value" id="statCities">—</div>
+          <div class="stat-label">Cities Monitored</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 3: Trend Chart + Donut ────────────────────────── -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-card-header">
+          <h3 class="chart-title">24-Hour AQI Trend</h3>
+          <div class="chart-actions">
+            <select class="chart-select" id="trendCitySelect">
+              <option value="">All Cities</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap" style="height:230px">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3 class="chart-title">Pollutant Share</h3>
+        </div>
+        <div class="chart-canvas-wrap" style="height:230px">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 4: Map ─────────────────────────────────────────── -->
+    <div class="map-card">
+      <div class="chart-card-header">
+        <h3 class="chart-title"><i class="fa-solid fa-map-location-dot"></i> AQI Map — City Distribution</h3>
+        <div class="map-legend">
+          <span class="ml-item"><span class="ml-dot" style="background:#009966"></span>Good</span>
+          <span class="ml-item"><span class="ml-dot" style="background:#ffde33"></span>Moderate</span>
+          <span class="ml-item"><span class="ml-dot" style="background:#ff9933"></span>Poor</span>
+          <span class="ml-item"><span class="ml-dot" style="background:#cc0033"></span>Unhealthy</span>
+          <span class="ml-item"><span class="ml-dot" style="background:#660099"></span>Severe</span>
+        </div>
+      </div>
+      <div id="aqiMap" style="height:360px;border-radius:0 0 16px 16px;"></div>
+    </div>
+
+    <!-- ── ROW 5: Heatmap ─────────────────────────────────────── -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h3 class="chart-title"><i class="fa-solid fa-fire"></i> AQI Heatmap — Hour × Day</h3>
+      </div>
+      <div id="heatmapContainer" style="overflow-x:auto;padding:8px 0;"></div>
+    </div>
+
+    <!-- ── ROW 6: City Ranking ────────────────────────────────── -->
+    <div class="chart-card" style="margin-bottom:40px;">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title"><i class="fa-solid fa-ranking-star"></i> AQI Ranking</h3>
+          <p class="chart-subtitle" id="rankingMeta">Loading the best matching AQI list…</p>
+        </div>
+        <a href="/api/export" class="btn-export"><i class="fa-solid fa-download"></i> Export CSV</a>
+      </div>
+      <div class="table-responsive">
+        <table class="ranking-table" id="rankingTable">
+          <thead>
+            <tr>
+              <th>#</th><th id="rankingPlaceHeader">Place</th><th id="rankingRegionHeader">Region</th>
+              <th>AQI</th><th>Level</th><th id="rankingMetricHeader">PM₂.₅</th><th id="rankingTimeHeader">Last Updated</th>
+            </tr>
+          </thead>
+          <tbody id="rankingBody">
+            <tr><td colspan="7" class="table-loading">Loading city data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="page-container footer-inner">
+    <div class="footer-left">
+      <div class="footer-logo">
+        <div class="logo-badge small">AQI</div>
+        <span>AirQuality Dashboard</span>
+      </div>
+      <p class="footer-desc">Real-time air quality monitoring powered by WAQI API and Machine Learning.</p>
+    </div>
+    <div class="footer-right">
+      <p class="footer-tech">
+        <strong>Tech Stack:</strong> Python · Flask · Random Forest · Scikit-learn · Pandas · NumPy · Chart.js · Leaflet.js
+      </p>
+      <p class="footer-note">Data source: WAQI.info · Refreshes every 5 minutes</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── GUIDANCE BOT MODAL ─────────────────────────────────── -->
+<div class="guidance-modal-overlay" id="guidanceModalOverlay" role="dialog" aria-modal="true" aria-labelledby="guidanceModalTitle" style="display:none">
+  <div class="guidance-modal">
+    <div class="guidance-modal-header">
+      <div class="guidance-modal-title-row">
+        <div class="guidance-modal-icon"><i class="fa-solid fa-head-side-mask"></i></div>
+        <div>
+          <h2 class="guidance-modal-title" id="guidanceModalTitle">Air Coach</h2>
+          <p class="guidance-modal-city" id="guidanceBotCityLabel">—</p>
+        </div>
+      </div>
+      <button class="guidance-modal-close" id="guidanceModalClose" aria-label="Close guidance bot">&times;</button>
+    </div>
+    <div class="guidance-modal-body" id="guidanceModalBody">
+      <div class="guidance-loading" id="guidanceLoading">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <span>Generating personalized advice…</span>
+      </div>
+      <div class="guidance-result" id="guidanceResult" style="display:none">
+        <div class="guidance-aqi-badge-row">
+          <span class="guidance-aqi-pill" id="guidanceAqiPill">AQI —</span>
+          <span class="guidance-level-tag" id="guidanceLevelTag">—</span>
+        </div>
+        <p class="guidance-summary" id="guidanceSummary"></p>
+        <div class="guidance-primary-action" id="guidancePrimaryAction">
+          <i class="fa-solid fa-circle-chevron-right"></i>
+          <strong id="guidancePrimaryText"></strong>
+        </div>
+        <h4 class="guidance-steps-title"><i class="fa-solid fa-list-check"></i> Action Steps</h4>
+        <ol class="guidance-steps" id="guidanceSteps"></ol>
+
+        <div class="guidance-chat-shell">
+          <div class="guidance-chat-head">
+            <div>
+              <p class="guidance-chat-title">Ask a follow-up</p>
+              <p class="guidance-chat-subtitle">Try asthma, masks, exercise, children, or commute questions.</p>
+            </div>
+          </div>
+          <div class="guidance-chat-log" id="guidanceChatLog" aria-live="polite"></div>
+          <div class="guidance-chat-form">
+            <textarea
+              class="guidance-question-input"
+              id="guidanceQuestionInput"
+              rows="2"
+              placeholder="Ask about asthma, masks, outdoor exercise, school, or travel..."
+              aria-label="Ask the guidance bot"
+            ></textarea>
+            <button class="guidance-send-btn" id="guidanceSendBtn" type="button">Send</button>
+          </div>
+          <div class="guidance-quick-actions">
+            <button class="guidance-quick-btn" data-question="What precautions should an asthma patient take right now?" type="button">Asthma</button>
+            <button class="guidance-quick-btn" data-question="Can children go outside today?" type="button">Kids</button>
+            <button class="guidance-quick-btn" data-question="Should I wear a mask outdoors?" type="button">Mask</button>
+          </div>
+        </div>
+      </div>
+      <div class="guidance-error" id="guidanceError" style="display:none">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Could not load guidance right now. Please try again.</p>
+        <button class="guidance-retry-btn" id="guidanceRetryBtn">Retry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}?v={{ ts }}"></script>
+</body>
+</html>

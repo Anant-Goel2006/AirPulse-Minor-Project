@@ -1,0 +1,118 @@
+{
+  "default": {
+    "imageUrl": "/static/assets/hero/default.webp",
+    "focalPoint": "center"
+  },
+  "cities": {
+    "delhi": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/PXL_20231127_142319433_India_Gate_at_Night_Kartavya_Path%2C_New_Delhi%2C_Delhi_110001_01.jpg",
+      "focalPoint": "center"
+    },
+    "mumbai": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Gateway_of_India_at_Night_01.jpg/3840px-Gateway_of_India_at_Night_01.jpg",
+      "focalPoint": "center"
+    },
+    "bengaluru": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Vidhana_Soudha_LE.jpg/3840px-Vidhana_Soudha_LE.jpg",
+      "focalPoint": "center"
+    },
+    "kolkata": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Howrah_Bridge_Evening.jpg/3840px-Howrah_Bridge_Evening.jpg",
+      "focalPoint": "center"
+    },
+    "hyderabad": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Charminar_at_night_%28JUNE_2019%29_2.jpg/3840px-Charminar_at_night_%28JUNE_2019%29_2.jpg",
+      "focalPoint": "center"
+    },
+    "chennai": {
+      "imageUrl": "/static/assets/hero/cities/chennai.webp",
+      "focalPoint": "center"
+    },
+    "beijing": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Southeast_corner_tower_of_Forbidden_City_and_Beijing_eastern_skyline_%2820241127133425%29.jpg/3840px-Southeast_corner_tower_of_Forbidden_City_and_Beijing_eastern_skyline_%2820241127133425%29.jpg",
+      "focalPoint": "center"
+    },
+    "shanghai": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Pudong_night_skyline_viewed_from_the_Bund_in_Shanghai_%2841199899084%29.jpg/3840px-Pudong_night_skyline_viewed_from_the_Bund_in_Shanghai_%2841199899084%29.jpg",
+      "focalPoint": "center"
+    },
+    "london": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Big_Ben_at_Night_from_The_London_Eye%2C_2012-12-28.jpg/3840px-Big_Ben_at_Night_from_The_London_Eye%2C_2012-12-28.jpg",
+      "focalPoint": "center"
+    },
+    "new-york": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Brooklyn_Diner%2C_New_York_City_%282024%29-L1006207.jpg/3840px-Brooklyn_Diner%2C_New_York_City_%282024%29-L1006207.jpg",
+      "focalPoint": "center"
+    },
+    "tokyo": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Shibuya_and_Shinjuku_from_Yebisu_Garden_Place_Tower%2C_Ebisu%2C_Tokyo%2C_Japan%2C_2024_May.jpg/3840px-Shibuya_and_Shinjuku_from_Yebisu_Garden_Place_Tower%2C_Ebisu%2C_Tokyo%2C_Japan%2C_2024_May.jpg",
+      "focalPoint": "center"
+    },
+    "singapore": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Singapore_%28SG%29%2C_Marina_Bay_--_2019_--_4439-48.jpg/3840px-Singapore_%28SG%29%2C_Marina_Bay_--_2019_--_4439-48.jpg",
+      "focalPoint": "center"
+    },
+    "sydney": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Sydney_%28AU%29%2C_Opera_House_--_2019_--_3061-4.jpg/3840px-Sydney_%28AU%29%2C_Opera_House_--_2019_--_3061-4.jpg",
+      "focalPoint": "center"
+    },
+    "paris": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Paris_Night.jpg/3840px-Paris_Night.jpg",
+      "focalPoint": "center"
+    },
+    "chicago": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Chicago_from_North_Avenue_Beach_June_2015_panorama_2.jpg/3840px-Chicago_from_North_Avenue_Beach_June_2015_panorama_2.jpg",
+      "focalPoint": "center"
+    },
+    "los-angeles": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Hollywood%2C_Los_Angeles%2C_CA_11.JPG/3840px-Hollywood%2C_Los_Angeles%2C_CA_11.JPG",
+      "focalPoint": "center"
+    }
+  },
+  "countries": {
+    "india": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Taj_Mahal_Agra_India_2025_04.jpg/3840px-Taj_Mahal_Agra_India_2025_04.jpg",
+      "focalPoint": "center"
+    },
+    "china": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Jiayuguan_Gatetower_%2820230919150124%29.jpg/3840px-Jiayuguan_Gatetower_%2820230919150124%29.jpg",
+      "focalPoint": "center"
+    },
+    "japan": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Mount_Fuji_Japan_with_Snow%2C_Lakes_and_Surrounding_Mountains.jpg/3840px-Mount_Fuji_Japan_with_Snow%2C_Lakes_and_Surrounding_Mountains.jpg",
+      "focalPoint": "center"
+    },
+    "us": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Currier_and_Ives_Liberty2.jpg/3840px-Currier_and_Ives_Liberty2.jpg",
+      "focalPoint": "center"
+    },
+    "usa": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Currier_and_Ives_Liberty2.jpg/3840px-Currier_and_Ives_Liberty2.jpg",
+      "focalPoint": "center"
+    },
+    "united-states": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Currier_and_Ives_Liberty2.jpg/3840px-Currier_and_Ives_Liberty2.jpg",
+      "focalPoint": "center"
+    },
+    "uk": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/London_Thames_Sunset_panorama_-_Feb_2008.jpg/3840px-London_Thames_Sunset_panorama_-_Feb_2008.jpg",
+      "focalPoint": "center"
+    },
+    "united-kingdom": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/London_Thames_Sunset_panorama_-_Feb_2008.jpg/3840px-London_Thames_Sunset_panorama_-_Feb_2008.jpg",
+      "focalPoint": "center"
+    },
+    "australia": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Sydney_Harbour_Bridge_night.jpg/3840px-Sydney_Harbour_Bridge_night.jpg",
+      "focalPoint": "center"
+    },
+    "france": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Louvre_Courtyard%2C_Looking_West.jpg/3840px-Louvre_Courtyard%2C_Looking_West.jpg",
+      "focalPoint": "center"
+    },
+    "singapore": {
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Singapore_%28SG%29%2C_Marina_Bay_--_2019_--_4439-48.jpg/3840px-Singapore_%28SG%29%2C_Marina_Bay_--_2019_--_4439-48.jpg",
+      "focalPoint": "center"
+    }
+  }
+}
