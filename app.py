@@ -108,6 +108,9 @@ SMTP_FROM_EMAIL = str(os.getenv("SMTP_FROM_EMAIL", SMTP_USER) or "").strip()
 SMTP_USE_TLS = str(os.getenv("SMTP_USE_TLS", "true") or "true").strip().lower() in {"1", "true", "yes", "y"}
 AQI_ALERT_CHECK_INTERVAL_SEC = max(60, int(float(os.getenv("AQI_ALERT_CHECK_INTERVAL_SEC", "600") or "600")))
 AQI_ALERT_COOLDOWN_MIN = max(5, int(float(os.getenv("AQI_ALERT_COOLDOWN_MIN", "180") or "180")))
+GETTY_API_KEY = str(os.getenv("GETTY_API_KEY", "") or "").strip()
+CITY_IMAGE_CACHE = {}
+CITY_IMAGE_CACHE_TTL = 3600  # 1 hour
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
@@ -2386,6 +2389,66 @@ def export_data():
         "Content-Type": "text/csv",
         "Content-Disposition": "attachment; filename=aqi_live_export.csv",
     }
+
+
+# ── City Image Proxy (Getty → Unsplash fallback) ────────────────
+@app.route("/api/city-image/<path:city>")
+def city_image_proxy(city):
+    """Return a live image URL for a city. Tries Getty API first, falls back to Unsplash."""
+    try:
+        city_key = re.sub(r"[^a-z0-9 ]", "", str(city or "").strip().lower()).strip()
+        if not city_key:
+            return jsonify({"error": "Empty city"}), 400
+
+        # Check cache
+        cached = CITY_IMAGE_CACHE.get(city_key)
+        if cached and (time.time() - cached.get("ts", 0)) < CITY_IMAGE_CACHE_TTL:
+            return jsonify({"url": cached["url"], "source": cached["source"]})
+
+        image_url = None
+        source = "unsplash"
+
+        # Try Getty Images API
+        if GETTY_API_KEY:
+            try:
+                getty_resp = requests.get(
+                    "https://api.gettyimages.com/v3/search/images",
+                    headers={"Api-Key": GETTY_API_KEY},
+                    params={
+                        "phrase": f"{city_key} city skyline",
+                        "sort_order": "best",
+                        "number_of_people": "none",
+                        "page_size": 1,
+                        "fields": "display_set",
+                    },
+                    timeout=6,
+                )
+                if getty_resp.status_code == 200:
+                    images = getty_resp.json().get("images", [])
+                    if images:
+                        display_sizes = images[0].get("display_sizes", [])
+                        # Prefer largest display size
+                        best = max(display_sizes, key=lambda d: d.get("width", 0)) if display_sizes else None
+                        if best and best.get("uri"):
+                            image_url = best["uri"]
+                            source = "getty"
+            except Exception as e:
+                print(f"[WARN] Getty API error for '{city_key}': {e}")
+
+        # Fallback: Unsplash Source (free, no key needed)
+        if not image_url:
+            image_url = f"https://source.unsplash.com/1600x900/?{quote(city_key)}+city+skyline"
+            source = "unsplash"
+
+        CITY_IMAGE_CACHE[city_key] = {"url": image_url, "source": source, "ts": time.time()}
+        # Cap cache size
+        if len(CITY_IMAGE_CACHE) > 200:
+            oldest_key = min(CITY_IMAGE_CACHE, key=lambda k: CITY_IMAGE_CACHE[k].get("ts", 0))
+            CITY_IMAGE_CACHE.pop(oldest_key, None)
+
+        return jsonify({"url": image_url, "source": source})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 def smtp_is_configured():

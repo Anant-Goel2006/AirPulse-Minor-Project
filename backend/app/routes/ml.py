@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from backend.app.services.ml import get_ml_model, get_ml_scaler, get_ml_encoders
 from backend.app.utils import normalize_query_text, get_time_phase_from_iso
+from backend.app.services.lstm_model import generate_lstm_forecast
 from backend.app.services.openai_guidance import (
     build_guidance_base,
     generate_openai_guidance,
@@ -8,6 +9,22 @@ from backend.app.services.openai_guidance import (
 )
 
 ml_bp = Blueprint("ml_bp", __name__)
+
+@ml_bp.route("/predict/7day", methods=["GET"])
+def predict_7day():
+    city = str(request.args.get("city", "")).strip()
+    aqi = request.args.get("aqi", 50, type=float)
+    if not city:
+        return jsonify({"error": "City parameter is required"}), 400
+    
+    # Generate LSTM mathematically simulated forecast points
+    predictions = generate_lstm_forecast(city, current_aqi=aqi, current_pm25=0, current_temp=0)
+    
+    return jsonify({
+        "city": city,
+        "model": "LSTM_AutoRegressive_Sim",
+        "forecast": predictions
+    }), 200
 
 @ml_bp.route("/predict", methods=["POST"])
 def predict_aqi():

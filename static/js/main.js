@@ -1822,7 +1822,12 @@ function applyCachedLiveSnapshot(snapshot, reqSeq, displayNameHint = '') {
 
   renderHero(curLiveData, reqSeq, displayNameHint || curCityDisplay || '');
   syncLocationSelectionFromData(curLiveData, curCity, displayNameHint || curCityDisplay || '');
-  renderForecast(curLiveData?.forecast, Number.isFinite(aqi) ? aqi : 0);
+  
+  // Update Digital Twin Simulator
+  updateDigitalTwin(aqi);
+
+  // Fetch and Render LSTM 7-Day Forecast
+  renderLstmForecast(city, Number.isFinite(aqi) ? aqi : 0);
   loadDonut();
   loadNlpAdvice(curLiveData, reqSeq);
   return true;
@@ -2092,19 +2097,18 @@ function updateHeroUI(cityName, country, aqi, cat, desc, reqSeq = null) {
     gaugeLevelEl.style.color = cat.color;
   }
 
-  // Speedometer arc + needle
+  // Radial gauge arc progress (270° arc, r=120, circumference ≈ 753.98)
   const pct = Math.min(aqi / 500, 1);
-  const arc = $('speedometerProgress');
-  if (arc) {
-    const total = typeof arc.getTotalLength === 'function' ? arc.getTotalLength() : 377;
-    arc.style.strokeDasharray = `${total} ${total}`;
-    arc.style.strokeDashoffset = String(total - total * pct);
-    arc.setAttribute('stroke', cat.color);
-  }
-  const needleWrap = $('speedometerNeedleWrap');
-  if (needleWrap) {
-    const angle = -90 + (pct * 180);
-    needleWrap.style.transform = `rotate(${angle.toFixed(1)}deg)`;
+  const gaugeEl = $('gaugeProgress');
+  if (gaugeEl) {
+    // 270° arc out of 360° = 75% of circumference
+    const r = 120;
+    const circumference = 2 * Math.PI * r; // ≈ 753.98
+    const arcLength = circumference * 0.75; // ≈ 565.5
+    const progressOffset = arcLength - (arcLength * pct);
+    gaugeEl.style.strokeDasharray = `${arcLength} ${circumference}`;
+    gaugeEl.style.strokeDashoffset = String(progressOffset);
+    gaugeEl.style.stroke = cat.color;
   }
 
   // Description
@@ -2347,42 +2351,55 @@ document.querySelectorAll('.ftoggle').forEach(btn => {
   });
 });
 
-function renderForecast(forecast, curAqi) {
+async function renderLstmForecast(cityQuery, curAqi) {
   if (forecastChartInst) { forecastChartInst.destroy(); forecastChartInst = null; }
   const cvs = $('forecastChart');
   if (!cvs) return;
 
-  const fc = extractForecastSeries(forecast, activePoll);
-  const labels = [], vals = [];
+  let fc = [];
+  try {
+    const rawName = String(cityQuery).split('@')[0];
+    const encoded = encodeURIComponent(rawName);
+    const j = await fetchJsonNoCache(`/api/predict/7day?city=${encoded}&aqi=${curAqi}`);
+    if (j && Array.isArray(j.forecast)) {
+      fc = j.forecast;
+    }
+  } catch (err) {
+    console.error('LSTM fetch failed:', err);
+  }
 
+  const labels = [], vals = [];
   if (fc.length) {
-    fc.slice(0, 7).forEach(d => {
-      labels.push(formatForecastLabel(d.day, labels.length));
-      vals.push(d.avg ?? null);
+    fc.forEach((d, i) => {
+      labels.push(d.day_name.substring(0,3));
+      vals.push(d.predicted_aqi ?? null);
     });
   } else {
+    // Fallback if API fails
     buildDeterministicForecast(curAqi).forEach((d, i) => {
       labels.push(formatForecastLabel('', i));
       vals.push(d.avg);
     });
   }
 
-  const cfg = POLL_CFG[activePoll] || POLL_CFG.pm25;
   const numericVals = vals.filter(v => Number.isFinite(Number(v))).map(Number);
   const highest = numericVals.length ? Math.max(...numericVals) : Math.max(50, Number(curAqi) || 100);
   const suggestedMax = Math.max(50, Math.ceil((highest * 1.25) / 10) * 10);
+
+  // Use AQI colors for the AI curve
+  const curveColor = '#00a0ff';
 
   forecastChartInst = new Chart(cvs, {
     type: 'line',
     data: {
       labels,
       datasets: [{
-        label: cfg.lbl,
+        label: "AI Predicted AQI",
         data: vals,
-        borderColor: cfg.color,
-        backgroundColor: cfg.color + '18',
+        borderColor: curveColor,
+        backgroundColor: curveColor + '18',
         fill: true, tension: .4,
-        pointBackgroundColor: cfg.color, pointRadius: 4, borderWidth: 2,
+        pointBackgroundColor: curveColor, pointRadius: 4, borderWidth: 2,
         pointHoverRadius: 6,
       }]
     },
@@ -2393,7 +2410,7 @@ function renderForecast(forecast, curAqi) {
         tooltip: {
           backgroundColor: 'rgba(255,255,255,.96)', titleColor: '#1a1d2e', bodyColor: '#4a5568',
           borderColor: '#e8eaed', borderWidth: 1, padding: 10,
-          callbacks: { label: ctx => ` ${ctx.parsed.y} ${cfg.unit}` }
+          callbacks: { label: ctx => ` ${ctx.parsed.y} AQI` }
         }
       },
       scales: {
@@ -2407,6 +2424,51 @@ function renderForecast(forecast, curAqi) {
       }
     }
   });
+}
+
+/* ── Digital Twin Logic ─────────────────────────────────── */
+function updateDigitalTwin(aqi) {
+  const dtRank = $('dtStressRank');
+  const dtPart = $('dtParticulateLoad');
+  const leftLung = $('lungLeft');
+  const rightLung = $('lungRight');
+  
+  if(!dtRank || !leftLung) return;
+
+  const numericAqi = Number.isFinite(aqi) ? aqi : 50;
+  
+  // Simulate 24-hr PM2.5 accumulation (rough correlation)
+  const loadUg = (numericAqi * 0.45 * 24).toFixed(0);
+  dtPart.textContent = String(loadUg);
+
+  // Animate stress and colors based on severity
+  let lungColor = '#ffb6c1';
+  let stress = 'Normal';
+  let breatheSpeed = '4s';
+
+  if(numericAqi > 300) {
+    lungColor = '#8b0000'; // Dark red/brown
+    stress = 'Critical';
+    breatheSpeed = '1.5s'; // Fast gasping
+  } else if(numericAqi > 200) {
+    lungColor = '#cd5c5c';
+    stress = 'Severe';
+    breatheSpeed = '2s';
+  } else if(numericAqi > 100) {
+    lungColor = '#f08080';
+    stress = 'Moderate';
+    breatheSpeed = '3s';
+  } else if(numericAqi > 50) {
+    lungColor = '#ffc0cb';
+    stress = 'Mild';
+    breatheSpeed = '3.5s';
+  }
+
+  dtRank.textContent = stress;
+  leftLung.style.fill = lungColor;
+  rightLung.style.fill = lungColor;
+  leftLung.style.animationDuration = breatheSpeed;
+  rightLung.style.animationDuration = breatheSpeed;
 }
 
 /* ── Trend Chart ────────────────────────────────────────── */
@@ -2872,6 +2934,9 @@ setInterval(() => {
   loadRanking();
   loadHeatmap(selected);
 }, OVERVIEW_REFRESH_MS);
+
+/* ── Boot ───────────────────────────────────────────────── */
+// Removed slicer pill handlers since we use dropdowns now.
 
 /* ── Boot ───────────────────────────────────────────────── */
 (async function init() {

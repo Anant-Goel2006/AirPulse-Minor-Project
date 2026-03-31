@@ -83,70 +83,45 @@
   </div>
 </header>
 
-<!-- ── LOCATION EXPLORER + ALERTS ────────────────────────────── -->
-<section class="location-explorer" id="locationExplorer">
-  <div class="location-explorer-grid">
-    <div class="location-browser">
-      <p class="location-kicker">Live Location Flow</p>
-      <div class="location-browser-head">
-        <div>
-          <h2 class="location-title">Country → State → Nearby AQI</h2>
-          <p class="location-copy">We auto-detect your area on load, then let you drill down from country to state to the live locality feed.</p>
-        </div>
-        <button class="location-current-btn" id="useCurrentLocationBtn" type="button">
-          <i class="fa-solid fa-location-crosshairs"></i>
-          <span>Use my location</span>
-        </button>
+<!-- ── LOCATION EXPLORER (RESTORED) ─────────────────────────── -->
+<section class="location-explorer">
+  <div class="location-browser glass-panel">
+    <div class="location-browser-head">
+      <div>
+        <p class="location-kicker"><i class="fa-solid fa-location-dot"></i> Live Atmosphere</p>
+        <h2 class="location-title">Select Airshed</h2>
+        <p class="location-copy">Drill down from country to state to specific locality to view micro-level air quality and weather data.</p>
       </div>
-      <div class="location-select-row">
-        <label class="location-select-card">
-          <span class="location-select-label">Country</span>
-          <select id="countrySelect" class="location-select">
-            <option value="">Loading countries…</option>
-          </select>
-        </label>
-        <label class="location-select-card">
-          <span class="location-select-label">State / Region</span>
-          <select id="stateSelect" class="location-select" disabled>
-            <option value="">Select a country first</option>
-          </select>
-        </label>
-        <label class="location-select-card">
-          <span class="location-select-label">City / Locality</span>
-          <select id="localitySelect" class="location-select" disabled>
-            <option value="">Select a state first</option>
-          </select>
-        </label>
-      </div>
-      <div class="location-summary-bar">
-        <div class="location-summary-text" id="locationSummary">Detecting your current airshed…</div>
-        <div class="location-summary-pill" id="locationAutoStatus">Auto location ready</div>
-      </div>
+      <button class="location-current-btn" id="useCurrentLocationBtn" type="button" title="Use my current GPS location">
+        <i class="fa-solid fa-crosshairs"></i> Geo-Detect
+      </button>
     </div>
 
-    <form class="alert-card" id="alertForm">
-      <p class="alert-kicker">AQI Mail Alerts</p>
-      <h3 class="alert-title">Get the live AQI in your inbox</h3>
-      <p class="alert-copy">Send a current report now and keep alerting when AQI crosses your selected threshold while the server is running.</p>
-      <label class="alert-field">
-        <span>Email address</span>
-        <input id="alertEmailInput" type="email" placeholder="you@example.com" autocomplete="email"/>
-      </label>
-      <label class="alert-field">
-        <span>Alert threshold</span>
-        <select id="alertThresholdSelect">
-          <option value="80">AQI 80+</option>
-          <option value="100" selected>AQI 100+</option>
-          <option value="150">AQI 150+</option>
-          <option value="200">AQI 200+</option>
+    <!-- The Cascading Dropdowns -->
+    <div class="location-select-row">
+      <div class="location-select-card">
+        <label class="location-select-label" for="countrySelect">1. Country</label>
+        <select class="location-select" id="countrySelect">
+          <option value="">Select Country</option>
         </select>
-      </label>
-      <button class="alert-submit-btn" id="alertSubmitBtn" type="submit">
-        <i class="fa-solid fa-envelope-circle-check"></i>
-        <span>Send report & enable alerts</span>
-      </button>
-      <p class="alert-status" id="alertStatus">Alerts use the current location or selected place.</p>
-    </form>
+      </div>
+      <div class="location-select-card">
+        <label class="location-select-label" for="stateSelect">2. State / Region</label>
+        <select class="location-select" id="stateSelect" disabled>
+          <option value="">Select State</option>
+        </select>
+      </div>
+      <div class="location-select-card">
+        <label class="location-select-label" for="localitySelect">3. Locality</label>
+        <select class="location-select" id="localitySelect" disabled>
+          <option value="">Select Locality</option>
+        </select>
+      </div>
+    </div>
+    <div class="location-summary-bar">
+      <span class="location-summary-text" id="locationSummary">Waiting for selection…</span>
+      <span class="location-summary-pill" id="locationAutoStatus">Ready</span>
+    </div>
   </div>
 </section>
 
@@ -206,39 +181,78 @@
           <div class="aqi-updated" id="aqiUpdated">—</div>
         </div>
 
-
-        <!-- Gauge -->
+        <!-- Modern Radial Gauge -->
         <div class="gauge-container">
-          <div class="speedometer-shell">
-            <svg class="speedometer-svg" viewBox="0 0 320 190" aria-hidden="true">
+          <div class="radial-gauge-wrap">
+            <svg class="radial-gauge-svg" viewBox="0 0 280 280" aria-hidden="true">
               <defs>
-                <linearGradient id="speedometerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#1fb6ff"/>
-                  <stop offset="55%" stop-color="var(--aqi-color)"/>
-                  <stop offset="100%" stop-color="#ff8a3d"/>
+                <linearGradient id="gaugeGradGood" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#009966"/>
+                  <stop offset="100%" stop-color="#33cc99"/>
                 </linearGradient>
+                <linearGradient id="gaugeGradMod" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#c9a000"/>
+                  <stop offset="100%" stop-color="#e6c200"/>
+                </linearGradient>
+                <linearGradient id="gaugeGradPoor" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#e67e00"/>
+                  <stop offset="100%" stop-color="#ff9933"/>
+                </linearGradient>
+                <linearGradient id="gaugeGradUnhealthy" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#cc0033"/>
+                  <stop offset="100%" stop-color="#ff3366"/>
+                </linearGradient>
+                <linearGradient id="gaugeGradSevere" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#660099"/>
+                  <stop offset="100%" stop-color="#9933cc"/>
+                </linearGradient>
+                <linearGradient id="gaugeGradHaz" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#7e0023"/>
+                  <stop offset="100%" stop-color="#b30033"/>
+                </linearGradient>
+                <filter id="gaugeGlow">
+                  <feGaussianBlur stdDeviation="4" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
-              <path class="speedometer-track" d="M40 160 A120 120 0 0 1 280 160"></path>
-              <path class="speedometer-progress" id="speedometerProgress" d="M40 160 A120 120 0 0 1 280 160"></path>
-              <g class="speedometer-scale-text">
-                <text x="40" y="178">0</text>
-                <text x="88" y="66">50</text>
-                <text x="160" y="38">100</text>
-                <text x="232" y="66">200</text>
-                <text x="280" y="178">500</text>
+              <!-- Background segments -->
+              <circle class="gauge-segment seg-good" cx="140" cy="140" r="120"
+                stroke="#009966" stroke-opacity="0.15"/>
+              <circle class="gauge-segment seg-mod" cx="140" cy="140" r="120"
+                stroke="#c9a000" stroke-opacity="0.15"/>
+              <circle class="gauge-segment seg-poor" cx="140" cy="140" r="120"
+                stroke="#e67e00" stroke-opacity="0.15"/>
+              <circle class="gauge-segment seg-unhealthy" cx="140" cy="140" r="120"
+                stroke="#cc0033" stroke-opacity="0.15"/>
+              <circle class="gauge-segment seg-severe" cx="140" cy="140" r="120"
+                stroke="#660099" stroke-opacity="0.15"/>
+              <circle class="gauge-segment seg-haz" cx="140" cy="140" r="120"
+                stroke="#7e0023" stroke-opacity="0.15"/>
+              <!-- Track -->
+              <circle class="gauge-track" cx="140" cy="140" r="120"/>
+              <!-- Progress arc -->
+              <circle class="gauge-progress" id="gaugeProgress" cx="140" cy="140" r="120"
+                filter="url(#gaugeGlow)"/>
+              <!-- Scale labels -->
+              <g class="gauge-scale-labels">
+                <text x="46" y="232">0</text>
+                <text x="18" y="145">100</text>
+                <text x="46" y="62">200</text>
+                <text x="140" y="28">300</text>
+                <text x="232" y="62">400</text>
+                <text x="260" y="145">500</text>
               </g>
             </svg>
-            <div class="speedometer-needle-wrap" id="speedometerNeedleWrap">
-              <div class="speedometer-needle"></div>
-            </div>
-            <div class="speedometer-hub"></div>
             <div class="gauge-center-content">
               <div class="gauge-aqi-value" id="gaugeValue">—</div>
               <div class="gauge-aqi-label">AQI</div>
               <div class="gauge-aqi-level" id="gaugeLevel">Loading…</div>
             </div>
           </div>
-          <div class="speedometer-caption">Live outdoor exposure meter</div>
+          <div class="gauge-caption">Live outdoor exposure meter</div>
         </div>
 
         <!-- AQI description -->
@@ -299,13 +313,35 @@
           <!-- Injected by JS -->
         </div>
 
+        <!-- ── DIGITAL TWIN SIMULATOR ──────────────────────────── -->
+        <div class="digital-twin-sim" id="digitalTwinSim">
+          <div class="section-title-row">
+            <h4 class="section-title"><i class="fa-solid fa-lungs"></i> Digital Twin Exposure Simulator</h4>
+          </div>
+          <p class="digital-twin-desc">Visualizing simulated toll of 24h exposure at current AQI.</p>
+          <div class="lungs-container" id="lungsContainer">
+            <svg class="lungs-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+              <!-- Left Lung -->
+              <path class="lung-path lung-left" id="lungLeft" d="M95,30 C60,40 40,80 45,150 C60,165 90,165 95,140 Z"/>
+              <!-- Right Lung -->
+              <path class="lung-path lung-right" id="lungRight" d="M105,30 C140,40 160,80 155,150 C140,165 110,165 105,140 Z"/>
+              <!-- Trachea -->
+              <path class="trachea-path" d="M95,10 L95,30 M105,10 L105,30"/>
+            </svg>
+            <div class="lungs-fx-overlay" id="lungsFxOverlay"></div>
+          </div>
+          <div class="digital-twin-metrics">
+            <div class="dt-metric"><span id="dtStressRank">Normal</span><br>Tissue Stress</div>
+            <div class="dt-metric"><span id="dtParticulateLoad">0</span> µg<br>Particulate Load</div>
+          </div>
+        </div>
+
         <!-- Forecast Chart -->
         <div class="forecast-section">
           <div class="section-title-row">
-            <h4 class="section-title">7-Day Forecast</h4>
+            <h4 class="section-title"><i class="fa-solid fa-brain"></i> LSTM AI 7-Day Forecast</h4>
             <div class="forecast-toggle">
-              <button class="ftoggle active" data-poll="pm25">PM₂.₅</button>
-              <button class="ftoggle" data-poll="o3">O₃</button>
+              <button class="ftoggle active" data-poll="pm25">PM₂.₅ Equivalent</button>
             </div>
           </div>
           <div class="chart-canvas-wrap" style="height:180px">
@@ -430,6 +466,47 @@
 
   </div>
 </main>
+
+<!-- ── EMAIL ALERTS SECTION ─────────────────────────────────── -->
+<section class="email-alerts-section" id="emailAlertsSection">
+  <div class="page-container">
+    <div class="email-alerts-card">
+      <div class="email-alerts-content">
+        <div class="email-alerts-info">
+          <div class="email-alerts-icon-wrap">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <h3 class="email-alerts-title">AQI Email Alerts</h3>
+            <p class="email-alerts-desc">Get live AQI reports in your inbox. We'll alert you when air quality crosses your selected threshold.</p>
+          </div>
+        </div>
+        <form class="email-alerts-form" id="alertForm">
+          <div class="email-alerts-fields">
+            <label class="ea-field">
+              <span>Email address</span>
+              <input id="alertEmailInput" type="email" placeholder="you@example.com" autocomplete="email"/>
+            </label>
+            <label class="ea-field">
+              <span>Alert threshold</span>
+              <select id="alertThresholdSelect">
+                <option value="80">AQI 80+</option>
+                <option value="100" selected>AQI 100+</option>
+                <option value="150">AQI 150+</option>
+                <option value="200">AQI 200+</option>
+              </select>
+            </label>
+            <button class="ea-submit-btn" id="alertSubmitBtn" type="submit">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+              <span>Enable Alerts</span>
+            </button>
+          </div>
+          <p class="ea-status" id="alertStatus">Alerts use the current location or selected place.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ── FOOTER ─────────────────────────────────────────────────── -->
 <footer class="site-footer">
