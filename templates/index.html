@@ -83,72 +83,14 @@
   </div>
 </header>
 
-<!-- ── LOCATION EXPLORER (RESTORED) ─────────────────────────── -->
-<section class="location-explorer">
-  <div class="location-browser glass-panel">
-    <div class="location-browser-head">
-      <div>
-        <p class="location-kicker"><i class="fa-solid fa-location-dot"></i> Live Atmosphere</p>
-        <h2 class="location-title">Select Airshed</h2>
-        <p class="location-copy">Drill down from country to state to specific locality to view micro-level air quality and weather data.</p>
-      </div>
-      <button class="location-current-btn" id="useCurrentLocationBtn" type="button" title="Use my current GPS location">
-        <i class="fa-solid fa-crosshairs"></i> Geo-Detect
-      </button>
-    </div>
-
-    <!-- The Cascading Dropdowns -->
-    <div class="location-select-row">
-      <div class="location-select-card">
-        <label class="location-select-label" for="countrySelect">1. Country</label>
-        <select class="location-select" id="countrySelect">
-          <option value="">Select Country</option>
-        </select>
-      </div>
-      <div class="location-select-card">
-        <label class="location-select-label" for="stateSelect">2. State / Region</label>
-        <select class="location-select" id="stateSelect" disabled>
-          <option value="">Select State</option>
-        </select>
-      </div>
-      <div class="location-select-card">
-        <label class="location-select-label" for="localitySelect">3. Locality</label>
-        <select class="location-select" id="localitySelect" disabled>
-          <option value="">Select Locality</option>
-        </select>
-      </div>
-    </div>
-    <div class="location-summary-bar">
-      <span class="location-summary-text" id="locationSummary">Waiting for selection…</span>
-      <span class="location-summary-pill" id="locationAutoStatus">Ready</span>
-    </div>
-  </div>
-</section>
-
-<!-- ── AREA AQI LIST (AQI.IN STYLE) ─────────────────────────── -->
-<section class="area-live-panel" id="areaLivePanel">
-  <div class="area-live-head">
-    <h3 class="area-live-title">Nearby locations AQI</h3>
-    <p class="area-live-meta" id="areaAqiMeta">Loading locality AQI…</p>
-  </div>
-  <div class="area-live-controls" id="areaAqiControls" aria-label="Area AQI slider controls">
-    <button class="area-slide-btn" id="areaSlidePrev" type="button" aria-label="Scroll localities left">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-    <input class="area-slide-range" id="areaAqiSlider" type="range" min="0" max="100" value="0" step="1" aria-label="Slide localities">
-    <button class="area-slide-btn" id="areaSlideNext" type="button" aria-label="Scroll localities right">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  </div>
-  <div class="area-live-list" id="areaAqiList"></div>
-</section>
-
-<!-- ── MAIN CONTENT ───────────────────────────────────────────── -->
-<main class="main-content">
-  <div class="page-container">
-
     <!-- ── CINEMATIC HERO ─────────────────────────────────────── -->
-    <section class="cinematic-hero" id="cinematicHero" aria-live="polite">
+    <section class="cinematic-hero" id="cinematicHero" aria-live="polite" style="overflow: hidden; position: relative;">
+      
+      <!-- GLOBAL AETHER RIBBON (TICKER) -->
+      <div class="aether-ribbon" id="aetherRibbon">
+        <!-- Injected by JS -->
+      </div>
+
       <div class="hero-bg-layer is-visible" id="heroBgPrimary" role="img" aria-label="City background image"></div>
       <div class="hero-bg-layer" id="heroBgSecondary" role="img" aria-hidden="true"></div>
       <div class="hero-tint-overlay" id="heroTintOverlay"></div>
@@ -156,6 +98,7 @@
       <div class="cloud-layer cloud-back" aria-hidden="true"></div>
       <div class="cloud-layer cloud-mid" aria-hidden="true"></div>
       <div class="cloud-layer cloud-front" aria-hidden="true"></div>
+      <canvas id="atmosCanvas" class="atmos-canvas"></canvas>
       <div class="hero-content">
         <p class="hero-kicker">Live Atmosphere</p>
         <h1 class="hero-city" id="heroCityLabel">Delhi</h1>
@@ -181,78 +124,24 @@
           <div class="aqi-updated" id="aqiUpdated">—</div>
         </div>
 
-        <!-- Modern Radial Gauge -->
+        <!-- Futuristic Half-Moon Gauge -->
         <div class="gauge-container">
-          <div class="radial-gauge-wrap">
-            <svg class="radial-gauge-svg" viewBox="0 0 280 280" aria-hidden="true">
+          <div class="half-moon-gauge-wrap">
+            <svg class="half-moon-svg" viewBox="0 0 280 160">
               <defs>
-                <linearGradient id="gaugeGradGood" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#009966"/>
-                  <stop offset="100%" stop-color="#33cc99"/>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="var(--aqi-color)"/>
+                  <stop offset="100%" stop-color="var(--aqi-color-light)"/>
                 </linearGradient>
-                <linearGradient id="gaugeGradMod" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#c9a000"/>
-                  <stop offset="100%" stop-color="#e6c200"/>
-                </linearGradient>
-                <linearGradient id="gaugeGradPoor" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#e67e00"/>
-                  <stop offset="100%" stop-color="#ff9933"/>
-                </linearGradient>
-                <linearGradient id="gaugeGradUnhealthy" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#cc0033"/>
-                  <stop offset="100%" stop-color="#ff3366"/>
-                </linearGradient>
-                <linearGradient id="gaugeGradSevere" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#660099"/>
-                  <stop offset="100%" stop-color="#9933cc"/>
-                </linearGradient>
-                <linearGradient id="gaugeGradHaz" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#7e0023"/>
-                  <stop offset="100%" stop-color="#b30033"/>
-                </linearGradient>
-                <filter id="gaugeGlow">
-                  <feGaussianBlur stdDeviation="6" result="blur"/>
+                <filter id="neonGlow">
+                  <feGaussianBlur stdDeviation="5" result="blur"/>
                   <feComposite in="SourceGraphic" in2="blur" operator="over"/>
                 </filter>
-                <filter id="innerShadow">
-                  <feOffset dx="0" dy="2"/>
-                  <feGaussianBlur stdDeviation="3" result="offset-blur"/>
-                  <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
-                  <feFlood flood-color="black" flood-opacity="0.5" result="color"/>
-                  <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
-                  <feComponentTransfer in="shadow" result="shadow">
-                    <feFuncA type="linear" slope="0.5"/>
-                  </feComponentTransfer>
-                  <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
-                </filter>
               </defs>
-              <!-- Background segments -->
-              <circle class="gauge-segment seg-good" cx="140" cy="140" r="120"
-                stroke="#009966" stroke-opacity="0.15"/>
-              <circle class="gauge-segment seg-mod" cx="140" cy="140" r="120"
-                stroke="#c9a000" stroke-opacity="0.15"/>
-              <circle class="gauge-segment seg-poor" cx="140" cy="140" r="120"
-                stroke="#e67e00" stroke-opacity="0.15"/>
-              <circle class="gauge-segment seg-unhealthy" cx="140" cy="140" r="120"
-                stroke="#cc0033" stroke-opacity="0.15"/>
-              <circle class="gauge-segment seg-severe" cx="140" cy="140" r="120"
-                stroke="#660099" stroke-opacity="0.15"/>
-              <circle class="gauge-segment seg-haz" cx="140" cy="140" r="120"
-                stroke="#7e0023" stroke-opacity="0.15"/>
-              <!-- Track -->
-              <circle class="gauge-track" cx="140" cy="140" r="120"/>
-              <!-- Progress arc -->
-              <circle class="gauge-progress" id="gaugeProgress" cx="140" cy="140" r="120"
-                filter="url(#gaugeGlow)"/>
-              <!-- Scale labels -->
-              <g class="gauge-scale-labels">
-                <text x="46" y="232">0</text>
-                <text x="18" y="145">100</text>
-                <text x="46" y="62">200</text>
-                <text x="140" y="28">300</text>
-                <text x="232" y="62">400</text>
-                <text x="260" y="145">500</text>
-              </g>
+              <!-- Background Bar -->
+              <path class="gauge-bg-arc" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="16" stroke-linecap="round"/>
+              <!-- Progress Bar -->
+              <path class="gauge-progress-arc" id="gaugeProgress" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="20" stroke-linecap="round" filter="url(#neonGlow)"/>
             </svg>
             <div class="gauge-center-content">
               <div class="gauge-aqi-value" id="gaugeValue">—</div>
@@ -344,16 +233,23 @@
           </div>
         </div>
 
-        <!-- Forecast Chart -->
-        <div class="forecast-section">
-          <div class="section-title-row">
-            <h4 class="section-title"><i class="fa-solid fa-brain"></i> LSTM AI 7-Day Forecast</h4>
-            <div class="forecast-toggle">
-              <button class="ftoggle active" data-poll="pm25">PM₂.₅ Equivalent</button>
+        <!-- Forecast Chart & AI Analyst -->
+        <div class="forecast-section-hub">
+          <div class="forecast-chart-side">
+            <div class="section-title-row">
+              <h4 class="section-title"><i class="fa-solid fa-brain"></i> LSTM AI 7-Day Forecast</h4>
+            </div>
+            <div class="chart-canvas-wrap" style="height:160px">
+              <canvas id="forecastChart"></canvas>
             </div>
           </div>
-          <div class="chart-canvas-wrap" style="height:180px">
-            <canvas id="forecastChart"></canvas>
+          <div class="ai-analyst-side">
+            <div class="section-title-row">
+              <h4 class="section-title"><i class="fa-solid fa-microchip"></i> Atmos AI Diagnostic</h4>
+            </div>
+            <div class="ai-analyst-box" id="aiAnalystBox">
+               <div class="ai-msg">Analyzing atmospheric vectors...</div>
+            </div>
           </div>
         </div>
       </div>
