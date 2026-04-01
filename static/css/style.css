@@ -115,6 +115,7 @@ body {
   z-index: 0;
 }
 
+<<<<<<< HEAD
 /* ── DASHBOARD CORE LAYOUT ── */
 .aqi-hero-card {
   background: rgba(255, 255, 255, 0.95);
@@ -127,6 +128,45 @@ body {
   flex-direction: column;
   gap: 14px;
   margin-bottom: 24px;
+=======
+/* ── PREMIUM GLASS DESIGN TOKENS ────────────────────────── */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  --glass-blur: blur(12px);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+/* ── ROW 1: PREMIUM HERO ROW (2 COLUMNS) ───────────────────── */
+.hero-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: 24px;
+  padding: 0 24px;
+  margin-top: -80px; 
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.aqi-hero-card {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
 }
 
 .pollutants-panel, .nearby-ranking-card {
@@ -838,9 +878,9 @@ select {
   left: 0;
   width: 100%;
   height: 40px;
-  background: rgba(10, 20, 40, 0.6);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 100;
   display: flex;
   align-items: center;
@@ -856,14 +896,18 @@ select {
 }
 
 .ribbon-item {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  padding: 0 15px;
+}
+
+.ri-level {
+  display: none !important; /* Remove blocky colors from ticker items */
 }
 
 .ribbon-item b {
@@ -890,30 +934,71 @@ select {
   width: 100%;
 }
 
-.forecast-day-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-}
-
 .forecast-container {
-  min-height: 160px;
+  min-height: 140px;
+  overflow-x: auto;
+  padding: 10px 0 20px;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.forecast-day-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+.forecast-container::-webkit-scrollbar {
+  display: none;
+}
+
+.forecast-row {
+  display: flex;
+  gap: 16px;
+  padding: 0 4px;
 }
 
 .forecast-day-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 10px 4px;
+  flex: 0 0 160px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 16px;
   text-align: center;
-  transition: transform 0.2s;
-  border-top: 3px solid var(--accent);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.forecast-day-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255,255,255,0.05);
+  border-color: var(--accent);
+}
+
+.fdc-day {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fdc-mini-gauge {
+  width: 50px;
+  height: 30px;
+  margin: 4px 0;
+}
+
+.fdc-badge {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.fdc-level {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .forecast-day-card:hover {
@@ -992,9 +1077,34 @@ select {
 
 .ai-analyst-content {
   display: grid;
+<<<<<<< HEAD
   grid-template-columns: 120px 1fr;
   gap: 16px;
+=======
+  grid-template-columns: 1fr 240px;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.lungs-mini-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
   align-items: center;
+  justify-content: center;
+}
+
+.lung-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+  margin-bottom: 15px;
 }
 
 .ai-analyst-visual {
@@ -3435,29 +3545,45 @@ select {
   letter-spacing: -1px;
 }
 
-/* ── FUTURISTIC HALF-MOON GAUGE ─────────────────────────── */
+/* ── REDESIGNED GAUGE ARCHITECTURE ────────────────────── */
 .half-moon-gauge-wrap {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 320px;
   margin: 0 auto;
 }
 
-.half-moon-svg {
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
 .gauge-bg-arc {
-  stroke: rgba(255, 255, 255, 0.06);
+  stroke: rgba(255, 255, 255, 0.04);
 }
 
 .gauge-progress-arc {
   stroke: var(--aqi-color);
   stroke-dasharray: 314.15;
   stroke-dashoffset: 314.15;
-  transition: stroke-dashoffset 2s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.6s;
+  transition: stroke-dashoffset 2.5s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.8s;
+  filter: drop-shadow(0 0 10px var(--aqi-color));
+}
+
+.gauge-aqi-value {
+  font-size: 5.5rem;
+  font-weight: 900;
+  line-height: 0.8;
+  color: #fff;
+  text-shadow: 0 0 40px var(--aqi-color);
+  margin-top: -15px;
+}
+
+.gauge-aqi-level {
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 6px 20px;
+  background: var(--aqi-color);
+  color: #fff;
+  border-radius: 99px;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .atmos-canvas {

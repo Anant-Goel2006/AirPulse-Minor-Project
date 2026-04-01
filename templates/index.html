@@ -75,9 +75,9 @@
     <!-- ── CINEMATIC HERO ─────────────────────────────────────── -->
     <section class="cinematic-hero" id="cinematicHero" aria-live="polite" style="overflow: hidden; position: relative;">
       
-      <!-- GLOBAL AETHER RIBBON (TICKER) -->
+      <!-- CLEAN AETHER RIBBON (TICKER) -->
       <div class="aether-ribbon" id="aetherRibbon">
-        <!-- Injected by JS -->
+        <!-- Injected by JS — Transparent/Monochrome style -->
       </div>
 
       <div class="hero-bg-layer is-visible" id="heroBgPrimary" role="img" aria-label="City background image"></div>
@@ -99,8 +99,10 @@
         </div>
         
         <!-- Premium Speedometer Gauge -->
+        <!-- Premium Speedometer Gauge (Redesigned: Needle-less) -->
         <div class="hero-speedometer" id="heroSpeedometer">
           <svg class="speedo-svg" viewBox="0 0 200 120">
+<<<<<<< HEAD
             <defs>
               <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
@@ -113,10 +115,15 @@
             <path class="speedo-needle" id="speedoNeedle" d="M96,100 L100,25 L104,100 Z" fill="url(#needleGrad)" />
             <circle cx="100" cy="100" r="6" fill="#fff" shadow="0 0 10px rgba(0,0,0,0.5)"/>
             <circle cx="100" cy="100" r="2" fill="var(--primary)"/>
+=======
+            <path class="speedo-bg-path" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#ffffff11" stroke-width="12" stroke-linecap="round"/>
+            <path class="speedo-value-path" id="speedoValuePath" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="var(--aqi-color)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+            <circle class="speedo-indicator-orb" id="speedoOrb" cx="20" cy="100" r="6" fill="#fff" style="transition: all 0.5s ease" />
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
           </svg>
           <div class="speedo-text">
             <span class="speedo-aqi" id="speedoAqi">—</span>
-            <span class="speedo-label">LIVE AQI</span>
+            <span class="speedo-label">LIVE ATMOS</span>
           </div>
         </div>
       </div>
@@ -142,6 +149,7 @@
             <div class="aqi-updated" id="aqiUpdated">—</div>
           </div>
 
+<<<<<<< HEAD
           <!-- Vertical Health Stack -->
           <div class="hero-health-stack">
             <!-- 1. Fitting Lungs Animation -->
@@ -175,9 +183,35 @@
                 <p class="nlp-summary" id="nlpSummary">Analyzing air quality for health risks…</p>
                 <span class="nlp-mask-tag" id="nlpMask"></span>
               </div>
+=======
+        <!-- Futuristic Half-Moon Gauge -->
+        <div class="gauge-container">
+          <div class="half-moon-gauge-wrap">
+            <svg class="half-moon-svg" viewBox="0 0 280 160">
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="var(--aqi-color)"/>
+                  <stop offset="100%" stop-color="var(--aqi-color-light)"/>
+                </linearGradient>
+                <filter id="neonGlow">
+                  <feGaussianBlur stdDeviation="5" result="blur"/>
+                  <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+              </defs>
+              <path class="gauge-bg-arc" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="16" stroke-linecap="round"/>
+              <path class="gauge-progress-arc" id="gaugeProgress" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="20" stroke-linecap="round" filter="url(#neonGlow)"/>
+              <!-- Glowing Orb at Tip -->
+              <circle id="gaugeProgressOrb" cx="40" cy="140" r="10" fill="#fff" style="filter: drop-shadow(0 0 12px #fff); transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)"/>
+            </svg>
+            <div class="gauge-center-content">
+              <div class="gauge-aqi-value" id="gaugeValue">—</div>
+              <div class="gauge-aqi-label">AQI</div>
+              <div class="gauge-aqi-level" id="gaugeLevel">Loading…</div>
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
             </div>
           </div>
 
+<<<<<<< HEAD
           <div class="aqi-quick-stats">
             <div class="qs-item">
               <i class="fa-solid fa-temperature-half"></i>
@@ -204,8 +238,49 @@
           </div>
           <div class="pollutants-grid" id="pollutantsGrid">
             <!-- Injected by JS -->
+=======
+        <div class="aqi-description" id="aqiDescription">
+          <i class="fa-solid fa-circle-info"></i>
+          <span id="aqiDescText">Fetching live data…</span>
+        </div>
+
+        <div class="nlp-advice-card" id="nlpAdviceCard">
+          <div class="nlp-advice-head">
+            <i class="fa-solid fa-notes-medical"></i>
+            <span>AI Health Guidance</span>
+          </div>
+          <p class="nlp-summary" id="nlpSummary">Generating precautions via OpenAI…</p>
+        </div>
+
+        <div class="aqi-quick-stats">
+          <div class="qs-item">
+            <i class="fa-solid fa-temperature-half"></i>
+            <span class="qs-value" id="qsTemp">—</span>
+          </div>
+          <div class="qs-item">
+            <i class="fa-solid fa-droplet"></i>
+            <span class="qs-value" id="qsHum">—</span>
+          </div>
+          <div class="qs-item">
+            <i class="fa-solid fa-wind"></i>
+            <span class="qs-value" id="qsWind">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pollutants Panel (Parameters) -->
+      <div class="pollutants-panel glass-card">
+        <div class="panel-header">
+          <h3 class="panel-title"><i class="fa-solid fa-flask"></i> Atmospheric Parameters</h3>
+          <div class="dominant-tag" id="dominantTag">
+            <span class="dt-value" id="dominantValue">—</span>
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
           </div>
       </div>
+<<<<<<< HEAD
+=======
+    </div>
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
 
     <!-- ── FULL WIDTH AI FORECAST ────────────────────────── -->
     <section class="forecast-banner-section">
@@ -219,7 +294,45 @@
       </div>
     </section>
 
+<<<<<<< HEAD
     <!-- ── Stats Cards ─────────────────────────────── -->
+=======
+    <!-- ── ROW 2: AI ANALYST & DIGITAL TWIN ────────────────── -->
+    <div class="page-container">
+      <div class="ai-hub-row">
+        
+        <!-- Atmos AI Chatbot / Diagnostic -->
+        <div class="ai-analyst-card glass-card">
+          <div class="section-title-row">
+            <h4 class="section-title"><i class="fa-solid fa-message"></i> Air Coach & Diagnostic</h4>
+          </div>
+          <div class="ai-analyst-content">
+            <div class="ai-analyst-box" id="aiAnalystBox">
+              <div class="ai-msg">Analyzing atmospheric vectors...</div>
+            </div>
+            
+            <!-- Lungs Mini Card Nested Here -->
+            <div class="lungs-mini-card">
+               <div class="lung-label">RESPIRATORY TWIN</div>
+               <div class="lungs-container compact" id="lungsContainer">
+                <svg class="lungs-svg" viewBox="0 0 200 200">
+                  <path class="lung-path lung-left" id="lungLeft" d="M95,30 C60,40 40,80 45,150 C60,165 90,165 95,140 Z"/>
+                  <path class="lung-path lung-right" id="lungRight" d="M105,30 C140,40 160,80 155,150 C140,165 110,165 105,140 Z"/>
+                  <path class="trachea-path" d="M95,10 L95,30 M105,10 L105,30"/>
+                </svg>
+              </div>
+              <div class="dt-mini-metrics">
+                <span id="dtStressRank">Normal</span> stress
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Stats Cards ─────────────────────────────── -->
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
     <div class="stats-row" id="statsRow">
       <div class="stat-card">
         <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">

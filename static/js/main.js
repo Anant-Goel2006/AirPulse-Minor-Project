@@ -1897,9 +1897,12 @@ function applyCachedLiveSnapshot(snapshot, reqSeq, displayNameHint = '') {
   renderHero(curLiveData, reqSeq, displayNameHint || curCityDisplay || '');
   syncLocationSelectionFromData(curLiveData, curCity, displayNameHint || curCityDisplay || '');
   
+<<<<<<< HEAD
   // Update Digital Twin (lungs) with AQI
   updateDigitalTwin(aqi);
 
+=======
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
   // Fetch and Render LSTM 7-Day Forecast
   renderLstmForecast(curCity, Number.isFinite(aqi) ? aqi : 0);
   loadDonut();
@@ -2080,7 +2083,7 @@ async function loadLocalAqi(cityOverride = null, reqSeq = null) {
     }
     renderHero(curLiveData, reqSeq, fallbackLabel || d.city || cityToLoad);
     syncLocationSelectionFromData(curLiveData, cityToLoad, fallbackLabel || d.city || cityToLoad);
-    renderForecast(null, aqi);
+    renderLstmForecast(cityToLoad, aqi);
     loadDonut();
     loadNlpAdvice(curLiveData, reqSeq);
     loadAreaAqiList(`${d.city || cityToLoad}`, reqSeq);
@@ -2171,14 +2174,29 @@ function updateHeroUI(cityName, country, aqi, cat, desc, reqSeq = null) {
     gaugeLevelEl.style.color = cat.color;
   }
 
-  // Half-Moon Gauge Arc Progress (180° arc, r=100, path length ≈ 314.15)
+  // Half-Moon Gauge Arc Progress (180° arc, r=100 from M40,140 to 240,140)
   const pct = Math.min(aqi / 500, 1);
   const gaugeEl = $('gaugeProgress');
+  const orbEl = $('gaugeProgressOrb');
   if (gaugeEl) {
     const pathLength = 314.15;
     const progressOffset = pathLength - (pathLength * pct);
     gaugeEl.style.strokeDashoffset = String(progressOffset);
     gaugeEl.style.stroke = cat.color;
+
+    if (orbEl) {
+      // Arc coordinates for r=100, center=(140, 140)
+      // Angle: 180° to 0°
+      const angle = 180 - (pct * 180);
+      const rad = angle * (Math.PI / 180);
+      const orbX = 140 + 100 * Math.cos(rad);
+      const orbY = 140 - 100 * Math.sin(rad);
+      orbEl.setAttribute('cx', orbX);
+      orbEl.setAttribute('cy', orbY);
+      orbEl.style.fill = '#fff';
+      orbEl.style.filter = `drop-shadow(0 0 15px ${cat.color})`;
+    }
+    
     // Update particle engine
     if (atmosEngine) atmosEngine.setAqi(aqi);
   }
@@ -2316,15 +2334,17 @@ function getDominantPollutantFromIaqi(iaqi) {
 
 function renderNlpAdvice(payload) {
   const adv = payload?.data || payload?.advice || payload || {};
+  const nlpAdviceCard = $('nlpAdviceCard');
   const summaryEl = $('nlpSummary');
-  const maskEl = $('nlpMask');
-  const card = $('nlpAdviceCard');
-  if (!summaryEl || !maskEl) return;
+  const aqiDescText = $('aqiDescText');
+
+  if (!summaryEl) return;
   const summary = String(adv?.summary || adv?.assistant_reply || 'AQI guidance unavailable.').replace(/\s+/g, ' ').trim();
-  summaryEl.textContent = summary.length > 150 ? `${summary.slice(0, 149)}…` : summary;
-  maskEl.textContent = `Mask: ${adv?.mask_recommendation || '--'}`;
-  // Show the card only once it has real content (removes blank-box-on-load)
-  if (card) card.classList.add('is-visible');
+  
+  summaryEl.textContent = summary.length > 200 ? `${summary.slice(0, 199)}…` : summary;
+  if (aqiDescText) aqiDescText.textContent = summary; // Primary AI override
+  
+  if (nlpAdviceCard) nlpAdviceCard.classList.add('is-visible');
 }
 
 async function loadNlpAdvice(sourceData, reqSeq = null) {
@@ -2417,7 +2437,33 @@ function buildDeterministicForecast(baseValue) {
   }));
 }
 
+function updateSpeedometer(aqi) {
+  const arc = $('gaugeProgress');
+  const val = $('gaugeValue');
+  const level = $('gaugeLevel');
+  const cat = getCat(aqi);
+  
+  if (val) {
+    let current = parseInt(val.textContent) || 0;
+    animateValue(val, current, Math.round(aqi), 2000);
+  }
+  
+  if (level) {
+    level.textContent = cat.level;
+    level.style.background = cat.color;
+  }
 
+  if (arc) {
+    const maxAqi = 300;
+    const percentage = Math.min(aqi, maxAqi) / maxAqi;
+    const totalLength = 314.15; // Semi-circle circumference for R=100
+    const offset = totalLength - (percentage * totalLength);
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = cat.color;
+    document.documentElement.style.setProperty('--aqi-color', cat.color);
+    document.documentElement.style.setProperty('--aqi-color-light', lightenColor(cat.color));
+  }
+}
 
 function updateWeather(w) {
   $('qsTemp').textContent = w.temperature ? w.temperature.toFixed(1) + ' °C' : '—';
@@ -2444,9 +2490,6 @@ function lightenColor(hex) {
   return `rgb(${r},${g},${b})`;
 }
 
-
-
-
 /* ── Forecast chart ─────────────────────────────────────── */
 let activePoll = 'pm25';
 
@@ -2463,10 +2506,7 @@ async function renderLstmForecast(cityQuery, curAqi) {
   const container = $('forecastContainer');
   if (!container) return;
 
-  // Fix curveColor undefined by defining it based on current AQI
   const currentCat = getCat(curAqi || 50);
-  const curveColor = currentCat.color;
-
   let fc = [];
   try {
     const rawName = String(cityQuery).split('@')[0];
@@ -2487,18 +2527,34 @@ async function renderLstmForecast(cityQuery, curAqi) {
     }));
   }
 
+<<<<<<< HEAD
   // Render stylized cards in a horizontal container
   let html = '<div class="forecast-container">';
+=======
+  let html = '<div class="forecast-row">';
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
   fc.forEach((d, i) => {
     const aqi = Math.round(d.predicted_aqi);
     const cat = getCat(aqi);
     const dayName = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : d.day_name.substring(0, 3));
     
+    // Mini speedo calculation
+    const offset = 140 - (Math.min(aqi, 300) / 300) * 140;
+
     html += `
       <div class="forecast-day-card fade-in" style="--accent: ${cat.color}; animation-delay: ${i * 0.05}s">
         <div class="fdc-day">${dayName}</div>
+<<<<<<< HEAD
         <div class="fdc-badge">${aqi}</div>
         <div class="fdc-level" style="color: ${cat.color}">${cat.level}</div>
+=======
+        <svg class="fdc-mini-gauge" viewBox="0 0 100 60">
+          <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#ffffff11" stroke-width="6" stroke-linecap="round"/>
+          <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="${cat.color}" stroke-width="8" stroke-linecap="round" stroke-dasharray="140" stroke-dashoffset="${offset}"/>
+        </svg>
+        <div class="fdc-badge">${aqi}</div>
+        <div class="fdc-level">${cat.level}</div>
+>>>>>>> 9b969d8d9b9bd295f9e3298f0a69cc0468b9ee5e
         <div class="fdc-desc">${getLocalityGuidance(aqi)}</div>
       </div>
     `;
