@@ -101,10 +101,18 @@
         <!-- Premium Speedometer Gauge -->
         <div class="hero-speedometer" id="heroSpeedometer">
           <svg class="speedo-svg" viewBox="0 0 200 120">
+            <defs>
+              <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#fff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#cbd5e1;stop-opacity:1" />
+              </linearGradient>
+            </defs>
             <path class="speedo-bg-path" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#ffffff22" stroke-width="12" stroke-linecap="round"/>
             <path class="speedo-value-path" id="speedoValuePath" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="var(--aqi-color)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
-            <line class="speedo-needle" id="speedoNeedle" x1="100" y1="100" x2="100" y2="40" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="100" cy="100" r="5" fill="#fff"/>
+            <!-- Premium Tapered Needle -->
+            <path class="speedo-needle" id="speedoNeedle" d="M96,100 L100,25 L104,100 Z" fill="url(#needleGrad)" />
+            <circle cx="100" cy="100" r="6" fill="#fff" shadow="0 0 10px rgba(0,0,0,0.5)"/>
+            <circle cx="100" cy="100" r="2" fill="var(--primary)"/>
           </svg>
           <div class="speedo-text">
             <span class="speedo-aqi" id="speedoAqi">—</span>
@@ -117,32 +125,13 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!--  MAIN CONTENT                                              -->
     <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- ── MAIN CONTENT ── -->
     <main class="main-content">
     <div class="page-container">
 
-    <!-- ── AREA LIVE PANEL ──────────────────────────────────────── -->
-    <div class="area-live-panel" id="areaLivePanel">
-      <div class="area-live-head">
-        <div>
-          <h3 class="area-live-title">Nearby Stations</h3>
-          <p class="area-live-meta" id="areaAqiMeta">Loading locality AQI…</p>
-        </div>
-        <div class="area-live-controls">
-          <button class="area-slide-btn" id="areaSlidePrev" disabled><i class="fa-solid fa-chevron-left"></i></button>
-          <input type="range" class="area-slide-range" id="areaAqiSlider" min="0" max="100" value="0"/>
-          <button class="area-slide-btn" id="areaSlideNext" disabled><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-      </div>
-      <div class="area-live-list" id="areaAqiList">
-        <div class="area-aqi-state">Loading nearby areas…</div>
-      </div>
-    </div>
-
-    <!-- ── ROW 1: PREMIUM DASHBOARD HUB ───────────────────── -->
-    <div class="hero-row">
-
-      <!-- LEFT COLUMN: AQI Card + Guidance Bot -->
-      <div class="hero-row-left">
+      <!-- ── DASHBOARD CORE ── -->
+      <!-- AQI Main Card (Frosted Glass) -->
+      <div class="aqi-hero-card glass-card" id="aqiHeroCard">
         <!-- AQI Main Card (Frosted Glass) -->
         <div class="aqi-hero-card glass-card" id="aqiHeroCard">
           <div class="aqi-city-meta">
@@ -153,25 +142,40 @@
             <div class="aqi-updated" id="aqiUpdated">—</div>
           </div>
 
-          <!-- Replaced Gauge with Lungs + AQI Value -->
-          <div class="hero-lungs-display" style="display:flex; align-items:center; gap: 20px; padding: 10px 0;">
-            <div class="lungs-container compact" id="lungsContainer">
-              <svg class="lungs-svg" viewBox="0 0 200 200" style="width:100px; height:100px;">
+          <!-- Vertical Health Stack -->
+          <div class="hero-health-stack">
+            <!-- 1. Fitting Lungs Animation -->
+            <div class="lungs-container" id="lungsContainer">
+              <svg class="lungs-svg" viewBox="0 0 200 200">
                 <path class="lung-path lung-left" id="lungLeft" d="M95,30 C60,40 40,80 45,150 C60,165 90,165 95,140 Z"/>
                 <path class="lung-path lung-right" id="lungRight" d="M105,30 C140,40 160,80 155,150 C140,165 110,165 105,140 Z"/>
                 <path class="trachea-path" d="M95,10 L95,30 M105,10 L105,30"/>
               </svg>
             </div>
-            <div class="lungs-aqi-meta" style="display:flex; flex-direction:column;">
-              <span id="gaugeValue" style="font-size:3rem; font-weight:800; line-height:1; color:var(--aqi-color);">—</span>
-              <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Live AQI</span>
-              <span id="gaugeLevel" style="font-size:1rem; font-weight:700; color:var(--aqi-color); margin-top:4px;">Loading…</span>
-            </div>
-          </div>
 
-          <div class="aqi-description" id="aqiDescription">
-            <i class="fa-solid fa-circle-info"></i>
-            <span id="aqiDescText">Fetching live data…</span>
+            <!-- 2. AQI Value Below Lungs -->
+            <div class="hero-aqi-value-box">
+              <span id="gaugeValue" class="hero-aqi-num">—</span>
+              <span id="gaugeLevel" class="hero-aqi-lbl">Loading…</span>
+            </div>
+
+            <!-- 3. AQI Guidance Below AQI -->
+            <div class="aqi-description" id="aqiDescription">
+              <i class="fa-solid fa-circle-info"></i>
+              <span id="aqiDescText">Fetching live guidance…</span>
+            </div>
+
+            <!-- 4. Air Coach Chatbot Inline Below Guidance -->
+            <div class="inline-bot-container">
+              <div class="bot-header">
+                <i class="fa-solid fa-head-side-mask"></i>
+                <span>Air Coach AI</span>
+              </div>
+              <div class="bot-advice-box" id="nlpAdviceCard">
+                <p class="nlp-summary" id="nlpSummary">Analyzing air quality for health risks…</p>
+                <span class="nlp-mask-tag" id="nlpMask"></span>
+              </div>
+            </div>
           </div>
 
           <div class="aqi-quick-stats">
@@ -188,18 +192,8 @@
               <span class="qs-value" id="qsWind">—</span>
             </div>
           </div>
-
-          <!-- Guidance Bot Button -->
-          <button class="guidance-bot-btn" id="guidanceBotBtn" type="button">
-            <i class="fa-solid fa-head-side-mask"></i>
-            <span>Open Air Coach</span>
-            <span class="bot-pulse"></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- RIGHT COLUMN: Pollutants + Lungs + Air Coach Inline -->
-      <div class="hero-row-right">
+      <!-- Pollutants Panel (Parameters) -->
+      <div class="pollutants-panel glass-card">
         <!-- Pollutants Panel (Parameters) -->
         <div class="pollutants-panel glass-card">
           <div class="panel-header">
@@ -211,27 +205,7 @@
           <div class="pollutants-grid" id="pollutantsGrid">
             <!-- Injected by JS -->
           </div>
-        </div>
-
-        <!-- Nearby Area Rankings (Local Context) -->
-        <div class="nearby-ranking-card glass-card">
-          <div class="panel-header">
-            <h3 class="panel-title"><i class="fa-solid fa-location-dot"></i> Local Rankings</h3>
-          </div>
-          <div class="ranking-list" id="nearbyRankingList">
-            <div class="loading-ranks">Scanning nearby stations...</div>
-          </div>
-        </div>
       </div>
-    </div>
-            <span>AQI Guidance</span>
-          </div>
-          <p class="nlp-summary" id="nlpSummary">Generating precaution insights…</p>
-          <span class="nlp-mask-tag" id="nlpMask"></span>
-        </div>
-      </div>
-
-    </div>
 
     <!-- ── FULL WIDTH AI FORECAST ────────────────────────── -->
     <section class="forecast-banner-section">
@@ -484,6 +458,14 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- ── FLOATING CHATBOT ────────────────────────────────── -->
+<div class="floating-bot-wrap" id="chatbotFloatingBtn" title="Ask Air Coach">
+  <div class="bot-pulse"></div>
+  <button class="bot-fab">
+    <i class="fa-solid fa-robot"></i>
+  </button>
 </div>
 
 <script src="{{ url_for('static', filename='js/main.js') }}?v={{ ts }}"></script>
