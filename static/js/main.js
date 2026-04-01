@@ -1889,11 +1889,11 @@ function applyCachedLiveSnapshot(snapshot, reqSeq, displayNameHint = '') {
   renderHero(curLiveData, reqSeq, displayNameHint || curCityDisplay || '');
   syncLocationSelectionFromData(curLiveData, curCity, displayNameHint || curCityDisplay || '');
   
-  // Update Digital Twin Simulator - Removed as per user request
-  // updateDigitalTwin(aqi);
+  // Update Digital Twin (lungs) with AQI
+  updateDigitalTwin(aqi);
 
   // Fetch and Render LSTM 7-Day Forecast
-  renderLstmForecast(city, Number.isFinite(aqi) ? aqi : 0);
+  renderLstmForecast(curCity, Number.isFinite(aqi) ? aqi : 0);
   loadDonut();
   loadNlpAdvice(curLiveData, reqSeq);
   return true;

@@ -118,40 +118,57 @@ body {
 /* ── ROW 1: PREMIUM DASHBOARD HUB ───────────────────── */
 .hero-row {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr;
-  gap: 20px;
-  padding: 0 24px;
-  margin-top: -60px; /* Overlap with cinematic hero */
-  position: relative;
-  z-index: 10;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.hero-row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-row-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .aqi-hero-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(24px);
   border-radius: 28px;
-  padding: 24px;
+  padding: 22px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
   border: 1px solid rgba(255,255,255,0.5);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .pollutants-panel, .nearby-ranking-card {
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .pollutants-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
+}
+
+.nlp-mask-tag {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--aqi-bg, #e8f8f2);
+  color: var(--aqi-color, #009966);
 }
 
 .p-card {
@@ -879,11 +896,12 @@ select {
 /* ── FORENSIC AI ANALYST HUB ───────────────────────────── */
 /* ── FORECAST BANNER (Full Width) ───────────────────────── */
 .forecast-banner-section {
-  background: #f8fafc;
-  padding: 40px 0;
+  background: rgba(248, 250, 252, 0.6);
+  padding: 20px 0;
   border-top: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
-  margin: 40px 0;
+  margin: 12px 0;
+  border-radius: var(--radius-lg);
 }
 
 .forecast-section-hub {
@@ -946,6 +964,14 @@ select {
   line-height: 1;
 }
 
+.fdc-desc {
+  font-size: 0.55rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
 .ai-analyst-box {
   background: var(--primary-light);
   border: 1px solid rgba(43, 127, 255, 0.1);
@@ -971,21 +997,21 @@ select {
 
 /* ── AI HUB ROW & INTEGRATED LUNGS ─────────────────────── */
 .ai-hub-row {
-  margin-bottom: 40px;
+  margin-bottom: 12px;
 }
 
 .ai-analyst-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-light);
 }
 
 .ai-analyst-content {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 24px;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
   align-items: center;
 }
 
@@ -1094,11 +1120,19 @@ select {
 
 /* ── NEARBY RANKING CARD ───────────────────────────────── */
 .nearby-ranking-card {
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(8, 23, 44, .12);
+}
+
+.loading-ranks {
+  text-align: center;
   padding: 20px;
+  color: var(--text-muted);
+  font-size: .82rem;
 }
 
 .ranking-list {
@@ -1112,20 +1146,22 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.05);
+  padding: 10px 14px;
+  background: rgba(247, 248, 252, 0.6);
   border-radius: 12px;
+  border: 1px solid var(--border-light);
   transition: background 0.2s;
 }
 
 .rank-item:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(75, 169, 255, .08);
+  border-color: rgba(75, 169, 255, .3);
 }
 
 .ri-name {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .ri-aqi {
@@ -1470,7 +1506,7 @@ select {
 
 /* ── Layout ──────────────────────────────────────────────────── */
 .main-content {
-  padding: 14px 0 6px;
+  padding: 12px 0 6px;
 }
 
 .page-container {
@@ -1712,14 +1748,8 @@ select {
   }
 }
 
-/* ── Hero Row ────────────────────────────────────────────────── */
-.hero-row {
-  display: grid;
-  grid-template-columns: minmax(320px, 370px) 1fr;
-  gap: 16px;
-  align-items: start;
-  margin-bottom: 16px;
-}
+/* ── Hero Row (override) ─────────────────────────────────────── */
+/* handled at top of file */
 
 /* ── AQI Hero Card ───────────────────────────────────────────── */
 .aqi-hero-card {

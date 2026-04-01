@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-<!-- Google Tag Manager -->
-<script>
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5R8VM5TC');
-        </script>
-<!-- End Google Tag Manager -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="build-ts" content="{{ build_ts }}"/>
@@ -23,11 +14,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Leaflet marker cluster -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ ts }}"/>
 </head>
 <body>
@@ -57,7 +46,7 @@
   <div class="header-container">
     <a href="/" class="header-logo">
       <div class="logo-badge">AQI</div>
-      <span class="logo-text">Air<strong>Quality</strong></span>
+      <span class="logo-text">Air<strong>Pulse</strong></span>
     </a>
 
     <nav class="header-nav" id="headerNav">
@@ -125,142 +114,138 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  MAIN CONTENT                                              -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <main class="main-content">
+    <div class="page-container">
+
+    <!-- ── AREA LIVE PANEL ──────────────────────────────────────── -->
+    <div class="area-live-panel" id="areaLivePanel">
+      <div class="area-live-head">
+        <div>
+          <h3 class="area-live-title">Nearby Stations</h3>
+          <p class="area-live-meta" id="areaAqiMeta">Loading locality AQI…</p>
+        </div>
+        <div class="area-live-controls">
+          <button class="area-slide-btn" id="areaSlidePrev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <input type="range" class="area-slide-range" id="areaAqiSlider" min="0" max="100" value="0"/>
+          <button class="area-slide-btn" id="areaSlideNext" disabled><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="area-live-list" id="areaAqiList">
+        <div class="area-aqi-state">Loading nearby areas…</div>
+      </div>
+    </div>
+
     <!-- ── ROW 1: PREMIUM DASHBOARD HUB ───────────────────── -->
     <div class="hero-row">
 
-      <!-- AQI Main Card (Frosted Glass) -->
-      <div class="aqi-hero-card glass-card" id="aqiHeroCard">
-        <div class="aqi-city-meta">
-          <div>
-            <div class="aqi-city-name" id="aqiCityName">Delhi</div>
-            <div class="aqi-city-country" id="aqiCityCountry">India</div>
+      <!-- LEFT COLUMN: AQI Card + Guidance Bot -->
+      <div class="hero-row-left">
+        <!-- AQI Main Card (Frosted Glass) -->
+        <div class="aqi-hero-card glass-card" id="aqiHeroCard">
+          <div class="aqi-city-meta">
+            <div>
+              <div class="aqi-city-name" id="aqiCityName">Delhi</div>
+              <div class="aqi-city-country" id="aqiCityCountry">India</div>
+            </div>
+            <div class="aqi-updated" id="aqiUpdated">—</div>
           </div>
-          <div class="aqi-updated" id="aqiUpdated">—</div>
-        </div>
 
-        <!-- Futuristic Half-Moon Gauge -->
-        <div class="gauge-container">
-          <div class="half-moon-gauge-wrap">
-            <svg class="half-moon-svg" viewBox="0 0 280 160">
-              <defs>
-                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="var(--aqi-color)"/>
-                  <stop offset="100%" stop-color="var(--aqi-color-light)"/>
-                </linearGradient>
-                <filter id="neonGlow">
-                  <feGaussianBlur stdDeviation="5" result="blur"/>
-                  <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-                </filter>
-              </defs>
-              <path class="gauge-bg-arc" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="16" stroke-linecap="round"/>
-              <path class="gauge-progress-arc" id="gaugeProgress" d="M 40 140 A 100 100 0 0 1 240 140" fill="none" stroke-width="20" stroke-linecap="round" filter="url(#neonGlow)"/>
-            </svg>
-            <div class="gauge-center-content">
-              <div class="gauge-aqi-value" id="gaugeValue">—</div>
-              <div class="gauge-aqi-label">AQI</div>
-              <div class="gauge-aqi-level" id="gaugeLevel">Loading…</div>
+          <!-- Replaced Gauge with Lungs + AQI Value -->
+          <div class="hero-lungs-display" style="display:flex; align-items:center; gap: 20px; padding: 10px 0;">
+            <div class="lungs-container compact" id="lungsContainer">
+              <svg class="lungs-svg" viewBox="0 0 200 200" style="width:100px; height:100px;">
+                <path class="lung-path lung-left" id="lungLeft" d="M95,30 C60,40 40,80 45,150 C60,165 90,165 95,140 Z"/>
+                <path class="lung-path lung-right" id="lungRight" d="M105,30 C140,40 160,80 155,150 C140,165 110,165 105,140 Z"/>
+                <path class="trachea-path" d="M95,10 L95,30 M105,10 L105,30"/>
+              </svg>
+            </div>
+            <div class="lungs-aqi-meta" style="display:flex; flex-direction:column;">
+              <span id="gaugeValue" style="font-size:3rem; font-weight:800; line-height:1; color:var(--aqi-color);">—</span>
+              <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Live AQI</span>
+              <span id="gaugeLevel" style="font-size:1rem; font-weight:700; color:var(--aqi-color); margin-top:4px;">Loading…</span>
             </div>
           </div>
-          <div class="gauge-caption">Live outdoor exposure meter</div>
+
+          <div class="aqi-description" id="aqiDescription">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="aqiDescText">Fetching live data…</span>
+          </div>
+
+          <div class="aqi-quick-stats">
+            <div class="qs-item">
+              <i class="fa-solid fa-temperature-half"></i>
+              <span class="qs-value" id="qsTemp">—</span>
+            </div>
+            <div class="qs-item">
+              <i class="fa-solid fa-droplet"></i>
+              <span class="qs-value" id="qsHum">—</span>
+            </div>
+            <div class="qs-item">
+              <i class="fa-solid fa-wind"></i>
+              <span class="qs-value" id="qsWind">—</span>
+            </div>
+          </div>
+
+          <!-- Guidance Bot Button -->
+          <button class="guidance-bot-btn" id="guidanceBotBtn" type="button">
+            <i class="fa-solid fa-head-side-mask"></i>
+            <span>Open Air Coach</span>
+            <span class="bot-pulse"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Pollutants + Lungs + Air Coach Inline -->
+      <div class="hero-row-right">
+        <!-- Pollutants Panel (Parameters) -->
+        <div class="pollutants-panel glass-card">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-flask"></i> Atmospheric Parameters</h3>
+            <div class="dominant-tag" id="dominantTag">
+              <span class="dt-value" id="dominantValue">—</span>
+            </div>
+          </div>
+          <div class="pollutants-grid" id="pollutantsGrid">
+            <!-- Injected by JS -->
+          </div>
         </div>
 
-        <div class="aqi-description" id="aqiDescription">
-          <i class="fa-solid fa-circle-info"></i>
-          <span id="aqiDescText">Fetching live data…</span>
+        <!-- Nearby Area Rankings (Local Context) -->
+        <div class="nearby-ranking-card glass-card">
+          <div class="panel-header">
+            <h3 class="panel-title"><i class="fa-solid fa-location-dot"></i> Local Rankings</h3>
+          </div>
+          <div class="ranking-list" id="nearbyRankingList">
+            <div class="loading-ranks">Scanning nearby stations...</div>
+          </div>
         </div>
-
-        <div class="nlp-advice-card" id="nlpAdviceCard">
-          <div class="nlp-advice-head">
-            <i class="fa-solid fa-notes-medical"></i>
+      </div>
+    </div>
             <span>AQI Guidance</span>
           </div>
           <p class="nlp-summary" id="nlpSummary">Generating precaution insights…</p>
-        </div>
-
-        <div class="aqi-quick-stats">
-          <div class="qs-item">
-            <i class="fa-solid fa-temperature-half"></i>
-            <span class="qs-value" id="qsTemp">—</span>
-          </div>
-          <div class="qs-item">
-            <i class="fa-solid fa-droplet"></i>
-            <span class="qs-value" id="qsHum">—</span>
-          </div>
-          <div class="qs-item">
-            <i class="fa-solid fa-wind"></i>
-            <span class="qs-value" id="qsWind">—</span>
-          </div>
+          <span class="nlp-mask-tag" id="nlpMask"></span>
         </div>
       </div>
 
-      <!-- Pollutants Panel (Parameters) -->
-      <div class="pollutants-panel glass-card">
-        <div class="panel-header">
-          <h3 class="panel-title">Atmospheric Parameters</h3>
-          <div class="dominant-tag" id="dominantTag">
-            <span class="dt-value" id="dominantValue">—</span>
-          </div>
-        </div>
-        <div class="pollutants-grid" id="pollutantsGrid">
-          <!-- Injected by JS -->
-        </div>
-      </div>
-      
-      <!-- Nearby Area Rankings (Local Context) -->
-      <div class="nearby-ranking-card glass-card">
-        <div class="panel-header">
-          <h3 class="panel-title"><i class="fa-solid fa-location-dot"></i> Local Rankings</h3>
-        </div>
-        <div class="ranking-list" id="nearbyRankingList">
-          <div class="loading-ranks">Scanning nearby stations...</div>
-        </div>
-      </div>
     </div>
 
     <!-- ── FULL WIDTH AI FORECAST ────────────────────────── -->
     <section class="forecast-banner-section">
-      <div class="page-container">
-        <div class="forecast-section-hub">
-          <div class="section-title-row">
-            <h4 class="section-title"><i class="fa-solid fa-brain"></i> 7-Day AI Prediction Hub</h4>
-          </div>
-          <div class="forecast-container" id="forecastContainer">
-            <!-- Injected by JS -->
-          </div>
+      <div class="forecast-section-hub">
+        <div class="section-title-row">
+          <h4 class="section-title"><i class="fa-solid fa-brain"></i> 7-Day AI Prediction Hub</h4>
+        </div>
+        <div class="forecast-container" id="forecastContainer">
+          <!-- Injected by JS -->
         </div>
       </div>
     </section>
 
-    <!-- ── ROW 2: AI Diagnostic & Parameters ────────────────── -->
-    <div class="page-container">
-      <div class="ai-hub-row">
-        <!-- AI Diagnostic Box with Integrated Lungs -->
-        <div class="ai-analyst-card">
-          <div class="section-title-row">
-            <h4 class="section-title"><i class="fa-solid fa-microchip"></i> Atmos AI Diagnostic</h4>
-          </div>
-          <div class="ai-analyst-content">
-            <div class="ai-analyst-visual">
-               <div class="lungs-container compact" id="lungsContainer">
-                <svg class="lungs-svg" viewBox="0 0 200 200">
-                  <path class="lung-path lung-left" id="lungLeft" d="M95,30 C60,40 40,80 45,150 C60,165 90,165 95,140 Z"/>
-                  <path class="lung-path lung-right" id="lungRight" d="M105,30 C140,40 160,80 155,150 C140,165 110,165 105,140 Z"/>
-                  <path class="trachea-path" d="M95,10 L95,30 M105,10 L105,30"/>
-                </svg>
-              </div>
-              <div class="dt-mini-metrics">
-                <span id="dtStressRank">Normal</span> stress
-              </div>
-            </div>
-            <div class="ai-analyst-box" id="aiAnalystBox">
-              <div class="ai-msg">Analyzing atmospheric vectors with local context...</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── ROW 2: Stats Cards ─────────────────────────────── -->
+    <!-- ── Stats Cards ─────────────────────────────── -->
     <div class="stats-row" id="statsRow">
       <div class="stat-card">
         <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">
@@ -300,7 +285,7 @@
       </div>
     </div>
 
-    <!-- ── ROW 3: Trend Chart + Donut ────────────────────────── -->
+    <!-- ── Trend Chart + Donut ────────────────────────── -->
     <div class="charts-row">
       <div class="chart-card wide">
         <div class="chart-card-header">
@@ -326,7 +311,7 @@
       </div>
     </div>
 
-    <!-- ── ROW 4: Map ─────────────────────────────────────────── -->
+    <!-- ── Map ─────────────────────────────────────────── -->
     <div class="map-card">
       <div class="chart-card-header">
         <h3 class="chart-title"><i class="fa-solid fa-map-location-dot"></i> AQI Map — City Distribution</h3>
@@ -341,7 +326,7 @@
       <div id="aqiMap" style="height:360px;border-radius:0 0 16px 16px;"></div>
     </div>
 
-    <!-- ── ROW 5: Heatmap ─────────────────────────────────────── -->
+    <!-- ── Heatmap ─────────────────────────────────────── -->
     <div class="chart-card">
       <div class="chart-card-header">
         <h3 class="chart-title"><i class="fa-solid fa-fire"></i> AQI Heatmap — Hour × Day</h3>
@@ -349,8 +334,8 @@
       <div id="heatmapContainer" style="overflow-x:auto;padding:8px 0;"></div>
     </div>
 
-    <!-- ── ROW 6: City Ranking ────────────────────────────────── -->
-    <div class="chart-card" style="margin-bottom:40px;">
+    <!-- ── City Ranking ────────────────────────────────── -->
+    <div class="chart-card">
       <div class="chart-card-header">
         <div>
           <h3 class="chart-title"><i class="fa-solid fa-ranking-star"></i> AQI Ranking</h3>
@@ -423,7 +408,7 @@
     <div class="footer-left">
       <div class="footer-logo">
         <div class="logo-badge small">AQI</div>
-        <span>AirQuality Dashboard</span>
+        <span>AirPulse Dashboard</span>
       </div>
       <p class="footer-desc">Real-time air quality monitoring powered by WAQI API and Machine Learning.</p>
     </div>
