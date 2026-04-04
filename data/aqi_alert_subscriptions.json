@@ -1,0 +1,41 @@
+[
+  {
+    "email": "[REDACTED_EMAIL]",
+    "query": "geo:28.585410;77.030933",
+    "city": "Dwarka",
+    "state": "",
+    "country": "India",
+    "threshold": 100,
+    "enabled": true,
+    "created_at": "2026-04-03T16:39:57.669451",
+    "updated_at": "2026-04-03T16:39:57.679733",
+    "last_sent_at": "",
+    "last_aqi": null
+  },
+  {
+    "email": "[REDACTED_EMAIL]",
+    "query": "geo:28.585419;77.030876",
+    "city": "Dwarka",
+    "state": "",
+    "country": "India",
+    "threshold": 100,
+    "enabled": true,
+    "created_at": "2026-04-03T16:51:44.481853",
+    "updated_at": "2026-04-03T16:51:44.481934",
+    "last_sent_at": "",
+    "last_aqi": null
+  },
+  {
+    "email": "[REDACTED_EMAIL]",
+    "query": "geo:28.585453;77.030924",
+    "city": "Dwarka",
+    "state": "",
+    "country": "India",
+    "threshold": 100,
+    "enabled": true,
+    "created_at": "2026-04-03T17:27:16.863955",
+    "updated_at": "2026-04-03T17:27:23.159193",
+    "last_sent_at": "2026-04-03T17:27:23.154132",
+    "last_aqi": 61.0
+  }
+]

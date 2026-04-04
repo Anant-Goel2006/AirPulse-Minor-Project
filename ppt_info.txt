@@ -1,0 +1,10 @@
+--- Slide 3 Details ---
+Shape 0: 'Content Placeholder 3' | Type: PLACEHOLDER (14)
+  Pos: (L:0.00, T:0.00) | Size: 10.04x7.53
+Shape 1: 'Rectangle 1' | Type: AUTO_SHAPE (1)
+  Pos: (L:0.20, T:0.17) | Size: 4.54x0.64
+  Text: Project Overview
+Shape 2: 'Straight Connector 6' | Type: LINE (9)
+  Pos: (L:0.00, T:1.16) | Size: 10.04x0.00
+Shape 3: 'Picture 8' | Type: PICTURE (13)
+  Pos: (L:0.08, T:6.90) | Size: 2.64x0.38

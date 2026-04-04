@@ -1,0 +1,68 @@
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+
+# ── Virtual environments ─────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# ── Environment & Secrets (NEVER commit these) ───────────────
+# .env.example is safe to commit (no real secrets)
+
+# ── Logs & temporary output files ────────────────────────────
+*.log
+*.err
+*.out
+*.txt
+!requirements.txt
+!README.txt
+app_output.txt
+app_live.log
+err.txt
+out.txt
+error.txt
+server_*.log
+crash.log
+server.err.log
+server.out.log
+
+# ── OS & Editor noise ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# ── Testing & coverage ───────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Build artifacts ──────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+
+# ── Development utilities (not for production) ─────────────────
+fake_commits.py*
+inject_*.py*
+
+# ── IDE & system files ───────────────────────────────────────
+.git/
+.vscode/settings.json
+.vscode/extensions.json
+*.iml
+Thumbs.db
