@@ -116,14 +116,14 @@ SMTP_FROM_EMAIL = str(os.getenv("SMTP_FROM_EMAIL", SMTP_USER) or "").strip()
 SMTP_USE_TLS = str(os.getenv("SMTP_USE_TLS", "true") or "true").strip().lower() in {"1", "true", "yes", "y"}
 AQI_ALERT_CHECK_INTERVAL_SEC = max(60, int(float(os.getenv("AQI_ALERT_CHECK_INTERVAL_SEC", "600") or "600")))
 AQI_ALERT_COOLDOWN_MIN = max(5, int(float(os.getenv("AQI_ALERT_COOLDOWN_MIN", "180") or "180")))
-PEXELS_API_KEY = str(
-    os.getenv("PEXELS_API_KEY")
-    or os.getenv("PPELS_API_KEY")
-    or ""
-).strip()
+PEXELS_API_KEY = str(os.getenv("PEXELS_API_KEY") or "").strip()
+if not PEXELS_API_KEY:
+    # Keep checking PPELS for legacy support if needed, but primary is PEXELS
+    PEXELS_API_KEY = str(os.getenv("PPELS_API_KEY") or "").strip()
+
 GETTY_API_KEY = str(os.getenv("GETTY_API_KEY", "") or "").strip()
 CITY_IMAGE_CACHE = {}
-CITY_IMAGE_CACHE_TTL = 900  # 15 minutes
+CITY_IMAGE_CACHE_TTL = 60   # 1 minute
 
 
 def build_http_session():
@@ -2898,17 +2898,23 @@ def build_city_image_queries(seed_text):
     parts = cleaned.split()
     tail = " ".join(parts[-2:]) if len(parts) >= 2 else cleaned
     broad = parts[-1] if parts else cleaned
+    
+    # We order these from specific to broad.
+    # Pexels search is smart, but sometimes too specific returns 0.
     queries = [
         f"{cleaned} city skyline",
-        f"{cleaned} urban street",
-        f"{tail} city skyline",
+        f"{cleaned} urban",
+        f"{tail} city",
         f"{broad} skyline",
+        f"{broad} city",
+        cleaned, # last resort specific
+        broad    # last resort broad
     ]
 
     seen = set()
     ordered = []
     for query in queries:
-        normalized = re.sub(r"\s+", " ", str(query or "").strip()).strip()
+        normalized = re.sub(r"\s+", " ", str(query or "").strip().lower()).strip()
         if not normalized or normalized in seen:
             continue
         seen.add(normalized)
@@ -2921,8 +2927,11 @@ def build_city_image_fallback_url(seed_text):
     cleaned = re.sub(r"\s+", " ", cleaned)
     if not cleaned:
         cleaned = "city skyline"
+    
+    # We use the Unsplash 'featured' source for a dynamic lookup based on the city name.
+    # This ensures that different cities get different images even on fallback.
     sig = sum((idx + 1) * ord(ch) for idx, ch in enumerate(cleaned)) % 9973
-    return f"https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1600&q=80&city-hint={quote(cleaned)}&sig={sig}"
+    return f"https://source.unsplash.com/featured/1600x900/?{quote(cleaned)},city,skyline&sig={sig}"
 
 
 @app.route("/api/city-image/<path:city>")
@@ -2949,6 +2958,8 @@ def city_image_proxy(city):
         if PEXELS_API_KEY:
             try:
                 for search_query in search_queries:
+                    # Some Pexels API keys might be sensitive to the 'Authorization' format.
+                    # We use the standard format but log if it fails.
                     pexels_resp = HTTP_SESSION.get(
                         "https://api.pexels.com/v1/search",
                         headers={"Authorization": PEXELS_API_KEY},
@@ -2960,11 +2971,19 @@ def city_image_proxy(city):
                         },
                         timeout=6,
                     )
+                    
+                    if pexels_resp.status_code == 401:
+                        print(f"[ERROR] Pexels API Unauthorized: Check if your PEXELS_API_KEY is valid.")
+                        break # No point trying other queries if the key is invalid
+                    
                     if pexels_resp.status_code != 200:
+                        print(f"[WARN] Pexels API returned {pexels_resp.status_code} for query '{search_query}'")
                         continue
+                        
                     photos = pexels_resp.json().get("photos", [])
                     if not photos:
                         continue
+                    
                     src = photos[0].get("src") or {}
                     image_url = (
                         src.get("landscape")
@@ -2977,7 +2996,8 @@ def city_image_proxy(city):
                         source = "pexels"
                         break
             except Exception as e:
-                print(f"[WARN] Pexels API error for '{city_key}': {e}")
+                print(f"[WARN] Pexels API connection error for '{city_key}': {e}")
+
 
         # Getty Images remains an optional fallback.
         if not image_url and GETTY_API_KEY:
