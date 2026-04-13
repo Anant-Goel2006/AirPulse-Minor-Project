@@ -66,3 +66,7 @@ inject_*.py*
 .vscode/extensions.json
 *.iml
 Thumbs.db
+
+# ── Backups & Scratch ────────────────────────────────────────
+.env.bak
+scratch/
